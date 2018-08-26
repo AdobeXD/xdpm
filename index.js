@@ -4,10 +4,9 @@ const cli = require("cli");
 cli.enable("status");
 
 const commands = {
-    "init": "(TODO) Initialize a plugin scaffold, using an optional template",
     "install": "Install a plugin",
     "ls": "List all plugins",
-    "package": "(TODO) Package a plugin",
+    "package": "Package a plugin",
     "watch": "Watch a plugin directory. If no directory is specified, `.` is assumed",
 };
 
@@ -16,7 +15,6 @@ const options = {
     json: ["j", "If true, indicates that JSON output should be generated", "bool", false],
     mode: ["m", "Indicates which plugin mode to use (d=develop, p=production)", ["d", "p"], "d"],
     overwrite: ["o", "Allow overwriting plugins", "bool", false],
-    template: [false, "Use this template when creating a plugin scaffold", "string", null],
     which: ["w", "Which Adobe XD instance to target (r=release, p=prerelease, d=dev)", ["r", "p", "d"], "r"],
 };
 
@@ -37,5 +35,8 @@ switch (command.toLowerCase()) {
         break;
     case "watch":
         require("./commands/watch")(parsedOpts, args);
+        break;
+    case "package":
+        require("./commands/package")(parsedOpts, args);
         break;
 }
