@@ -13,6 +13,13 @@
 npm install -g xdpm
 ```
 
+If you've cloned the repository:
+
+```
+npm install
+npm link
+```
+
 ## Installing a plugin
 
 ```
