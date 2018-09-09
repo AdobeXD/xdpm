@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const localXdPath = require("../lib/localXdPath");
 const getPluginMetadata = require("../lib/getPluginMetadata");
+const ignoreWalk = require("ignore-walk");
 
 /**
  * Installs one or more plugins.
@@ -54,7 +55,26 @@ function install(opts, args) {
         } else {
             shell.mkdir(targetFolder);
         }
-        shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
+
+        // the comment below doesn't respect .xdignore (or other ignore files)
+        // but this is the gist of what we're trying to accomplish
+        // shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
+
+        const files = ignoreWalk.sync({
+            path: sourcePath,
+            ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
+            includeEmpty: false,
+        });
+
+        files.forEach(file => {
+            const srcFile = path.join(sourcePath, file);
+            const tgtFile = path.join(targetFolder, file);
+            const tgtDir = path.dirname(tgtFile);
+            if (!fs.existsSync(tgtDir)) {
+                fs.mkdirSync(tgtDir);
+            }
+            shell.cp(srcFile, tgtFile);
+        });
 
         return Object.assign({}, result, {
             "ok": `"${metadata.name}"@${metadata.version} [${metadata.id}] installed successfully.`
