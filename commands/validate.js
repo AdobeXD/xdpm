@@ -15,28 +15,20 @@
  */
 
 const cli = require("cli");
-const shell = require("shelljs");
 const path = require("path");
-const fs = require("fs");
-const localXdPath = require("../lib/localXdPath");
 const getPluginMetadata = require("../lib/getPluginMetadata");
 const validate = require("../lib/validate");
 
-const yazl = require("yazl");
-const ignoreWalk = require("ignore-walk");
-
-
 /**
- * Packages one or more plugins
+ * validates one or more plugins
  */
-function package(opts, args) {
-
+function validatePlugin(opts, args) {
     if (args.length === 0) {
         args.push("."); // assume we want to package the plugin in the cwd
     }
 
-    const results = args.map(pluginToPackage => {
-        const sourcePath = path.resolve(pluginToPackage);
+    const results = args.map(pluginToValidate => {
+        const sourcePath = path.resolve(pluginToValidate);
         const result = {
             path: sourcePath
         };
@@ -44,45 +36,18 @@ function package(opts, args) {
         const metadata = getPluginMetadata(sourcePath);
         if (!metadata) {
             return Object.assign({}, result, {
-                "error": "Can't package a plugin that doesn't have a valid manifest.json"
+                "error": `Plugin ${pluginToValidate} doesn't have a manifest.`
             });
         }
 
         const errors = validate(metadata, {root: sourcePath});
         if (errors.length > 0) {
             return Object.assign({}, result, {
-                "error": "Can't package a plugin that has validation errors in the maniest.json:\n" + errors.join("\n")
+                "error": `Plugin ${pluginToValidate} has validation errors in the manifest.json:\n` + errors.join("\n")
             });
         }
 
-        const id = metadata.id;
-        if (!id) {
-            return Object.assign({}, result, {
-                "error": "Can't package a plugin without a plugin ID in the manifest"
-            });
-        }
-
-        result.targetZip = path.join(sourcePath, '..', path.basename(sourcePath) + ".xdx");
-
-        const zipfile = new yazl.ZipFile();
-
-        zipfile.outputStream.pipe(fs.createWriteStream(result.targetZip)).on("close", function() {
-        });
-
-        const files = ignoreWalk.sync({
-            path: sourcePath,
-            ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
-            includeEmpty: false,
-        });
-
-        files.forEach(file => {
-            zipfile.addFile(path.join(sourcePath, file), file);
-        });
-
-
-        zipfile.end();
-
-        result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] packaged successfully at ${result.targetZip}`;
+        result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] validated successfully`;
         return result;
     });
 
@@ -102,4 +67,4 @@ function package(opts, args) {
     return results;
 }
 
-module.exports = package;
+module.exports = validatePlugin;
