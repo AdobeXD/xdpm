@@ -21,6 +21,7 @@ const fs = require("fs");
 const localXdPath = require("../lib/localXdPath");
 const getPluginMetadata = require("../lib/getPluginMetadata");
 const ignoreWalk = require("ignore-walk");
+const mkdirp = require("mkdirp");
 
 /**
  * Installs one or more plugins.
@@ -87,7 +88,7 @@ function install(opts, args) {
             const tgtFile = path.join(targetFolder, file);
             const tgtDir = path.dirname(tgtFile);
             if (!fs.existsSync(tgtDir)) {
-                fs.mkdirSync(tgtDir);
+                mkdirp.sync(tgtDir);
             }
             shell.cp(srcFile, tgtFile);
         });
