@@ -22,6 +22,7 @@ const localXdPath = require("../lib/localXdPath");
 const getPluginMetadata = require("../lib/getPluginMetadata");
 const ignoreWalk = require("ignore-walk");
 const mkdirp = require("mkdirp");
+const filterAlwaysIgnoredFile = require("../lib/filterAlwaysIgnoredFile");
 
 /**
  * Installs one or more plugins.
@@ -81,7 +82,7 @@ function install(opts, args) {
             path: sourcePath,
             ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
             includeEmpty: false,
-        });
+        }).filter(filterAlwaysIgnoredFile);
 
         files.forEach(file => {
             const srcFile = path.join(sourcePath, file);

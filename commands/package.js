@@ -24,6 +24,7 @@ const validate = require("../lib/validate");
 
 const yazl = require("yazl");
 const ignoreWalk = require("ignore-walk");
+const filterAlwaysIgnoredFile = require("../lib/filterAlwaysIgnoredFile");
 
 
 /**
@@ -73,7 +74,7 @@ function package(opts, args) {
             path: sourcePath,
             ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
             includeEmpty: false,
-        });
+        }).filter(filterAlwaysIgnoredFile);
 
         files.forEach(file => {
             zipfile.addFile(path.join(sourcePath, file), file);
