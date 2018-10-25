@@ -1,6 +1,6 @@
 {
-  "name": "xdpm",
-  "version": "1.0.0",
+  "name": "@adobe/xdpm",
+  "version": "1.1.0",
   "description": "Adobe XD CLI Plugin Manager Utility",
   "main": "index.js",
   "scripts": {
@@ -14,10 +14,10 @@
   "keywords": [
     "Adobe",
     "XD",
-    "XD",
     "Plugin",
-    "Plugin",
-    "Manager"
+    "Manager",
+    "Developer",
+    "CLI"
   ],
   "author": "Adobe",
   "license": "Apache-2.0",
@@ -25,7 +25,7 @@
     "url": "https://github.com/AdobeXD/xdpm/issues"
   },
   "homepage": "https://github.com/AdobeXD/xdpm#readme",
-  "devDependencies": {
+  "dependencies": {
     "chokidar": "^2.0.4",
     "cli": "^1.0.1",
     "debounce": "^1.2.0",
@@ -33,5 +33,8 @@
     "mkdirp": "^0.5.1",
     "shelljs": "^0.8.2",
     "yazl": "^2.4.3"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/"
   }
 }
