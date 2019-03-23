@@ -28,90 +28,105 @@ const filterAlwaysIgnoredFile = require("../lib/filterAlwaysIgnoredFile");
  * Installs one or more plugins.
  */
 function install(opts, args) {
-    const folder = localXdPath(opts);
-    if (!folder) {
-        console.fatal(`Could not determine Adobe XD folder.`);
-        return;
+  const folder = localXdPath(opts);
+  if (!folder) {
+    console.fatal(`Could not determine Adobe XD folder.`);
+    return;
+  }
+
+  if (args.length === 0) {
+    args.push("."); // assume we want to install the plugin in the cwd
+  }
+
+  const results = args.map(pluginToInstall => {
+    const sourcePath = path.resolve(pluginToInstall);
+    const result = {
+      path: sourcePath
+    };
+
+    const metadata = getPluginMetadata(sourcePath);
+    if (!metadata) {
+      return Object.assign({}, result, {
+        error: "Can't install a plugin that doesn't have a valid manifest.json"
+      });
     }
 
-    if (args.length === 0) {
-        args.push("."); // assume we want to install the plugin in the cwd
+    const id = metadata.id;
+    if (!id) {
+      return Object.assign({}, result, {
+        error: "Can't install a plugin without a plugin ID in the manifest"
+      });
     }
 
-    const results = args.map(pluginToInstall => {
-        const sourcePath = path.resolve(pluginToInstall);
-        const result = {
-            path: sourcePath
-        };
-
-        const metadata = getPluginMetadata(sourcePath);
-        if (!metadata) {
-            return Object.assign({}, result, {
-                "error": "Can't install a plugin that doesn't have a valid manifest.json"
-            });
-        }
-
-        const id = metadata.id;
-        if (!id) {
-            return Object.assign({}, result, {
-                "error": "Can't install a plugin without a plugin ID in the manifest"
-            });
-        }
-
-        const rootFolder = localXdPath(opts);
-        const targetFolder = path.join(rootFolder, id);
-        if (fs.existsSync(targetFolder)) {
-            if (!opts.overwrite) {
-                return Object.assign({}, result, {
-                    "error": "Plugin exists already; use -o to overwrite"
-                });
-            }
-            if (opts.clean) {
-                cli.debug(`(Cleaning) Removing files inside ${targetFolder}`);
-                shell.rm("-Rf", path.join(targetFolder, "*"));
-            }
-        } else {
-            shell.mkdir(targetFolder);
-        }
-
-        // the comment below doesn't respect .xdignore (or other ignore files)
-        // but this is the gist of what we're trying to accomplish
-        // shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
-
-        const files = ignoreWalk.sync({
-            path: sourcePath,
-            ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
-            includeEmpty: false,
-        }).filter(filterAlwaysIgnoredFile);
-
-        files.forEach(file => {
-            const srcFile = path.join(sourcePath, file);
-            const tgtFile = path.join(targetFolder, file);
-            const tgtDir = path.dirname(tgtFile);
-            if (!fs.existsSync(tgtDir)) {
-                mkdirp.sync(tgtDir);
-            }
-            shell.cp(srcFile, tgtFile);
-        });
-
+    const rootFolder = localXdPath(opts);
+    const targetFolder = path.join(rootFolder, id);
+    if (fs.existsSync(targetFolder)) {
+      if (!opts.overwrite) {
         return Object.assign({}, result, {
-            "ok": `"${metadata.name}"@${metadata.version} [${metadata.id}] installed successfully.`
+          error: "Plugin exists already; use -o to overwrite"
         });
-    });
-
-    if (opts.json) {
-        return results;
+      }
+      if (opts.clean) {
+        cli.debug(`(Cleaning) Removing files inside ${targetFolder}`);
+        shell.rm("-Rf", path.join(targetFolder, "*"));
+      }
+    } else {
+      shell.mkdir(targetFolder);
     }
 
-    results.forEach(result => {
-        if (result.ok) {
-            cli.ok(result.ok);
-        } else {
-            cli.error(result.error);
-        }
+    // the comment below doesn't respect .xdignore (or other ignore files)
+    // but this is the gist of what we're trying to accomplish
+    // shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
+
+    const files = ignoreWalk
+      .sync({
+        path: sourcePath,
+        ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
+        includeEmpty: false
+      })
+      .filter(filterAlwaysIgnoredFile);
+
+    files.forEach(file => {
+      const srcFile = path.join(sourcePath, file);
+      const tgtFile = path.join(targetFolder, file);
+      const tgtDir = path.dirname(tgtFile);
+      if (!fs.existsSync(tgtDir)) {
+        mkdirp.sync(tgtDir);
+      }
+      shell.cp(srcFile, tgtFile);
     });
 
+    if (opts.autoreload) {
+      const cmd = `osascript ${path.join(
+        __dirname,
+        "../lib/script.scpt"
+      )} "Create Rectangle"`;
+
+      require("child_process").exec(cmd, function(error, stdout, stderr) {
+        if (error) console.log(error);
+      });
+    }
+
+    return Object.assign({}, result, {
+      ok: `"${metadata.name}"@${metadata.version} [${
+        metadata.id
+      }] installed successfully.`
+    });
+  });
+
+  if (opts.json) {
     return results;
+  }
+
+  results.forEach(result => {
+    if (result.ok) {
+      cli.ok(result.ok);
+    } else {
+      cli.error(result.error);
+    }
+  });
+
+  return results;
 }
 
 module.exports = install;
