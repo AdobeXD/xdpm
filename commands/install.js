@@ -99,12 +99,9 @@ function install(opts, args) {
 
     if (opts.autoreload) {
       if (platform === "mac") {
-        const label = metadata.uiEntryPoints[0].label;
-
-        const cmd = `osascript ${path.join(
-          __dirname,
-          "../lib/script.scpt"
-        )} "${label}"`;
+        const cmd = `osascript ${path.join(__dirname, "../lib/script.scpt")} "${
+          opts.autoexec
+        }"`;
 
         require("child_process").exec(cmd, function(error, stdout, stderr) {
           if (error) console.log(error);

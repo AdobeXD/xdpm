@@ -45,7 +45,8 @@ const options = {
     ["r", "p", "d", "release", "pre", "prerelease", "dev", "development"],
     "r"
   ],
-  autoreload: ["a", "Automatically reload and rerun the plugin", "bool", false]
+  autoreload: ["a", "Automatically reload all plugins", "bool", false],
+  autoexec: ["x", "Automatically execute a plugin command", "string", ""]
 };
 
 const parsedOpts = cli.parse(options, commands);
