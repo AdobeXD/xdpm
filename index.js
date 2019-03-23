@@ -45,7 +45,7 @@ const options = {
     ["r", "p", "d", "release", "pre", "prerelease", "dev", "development"],
     "r"
   ],
-  autoreload: ["a", "Automatically reload all plugins", "bool", false],
+  autoreload: ["r", "Automatically reload all plugins", "bool", false],
   autoexec: ["x", "Automatically execute a plugin command", "string", ""],
   autoundo: ["u", "Automatically run undo for a plugin command", "string", ""]
 };
