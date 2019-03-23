@@ -99,9 +99,10 @@ function install(opts, args) {
 
     if (opts.autoreload) {
       if (platform === "mac") {
-        const cmd = `osascript ${path.join(__dirname, "../lib/script.scpt")} "${
-          opts.autoundo
-        }" "${opts.autoexec}"`;
+        const cmd = `osascript ${path.join(
+          __dirname,
+          "../lib/osa-auto.scpt"
+        )} "${opts.autoundo}" "${opts.autoexec}"`;
 
         require("child_process").exec(cmd, function(error, stdout, stderr) {
           if (error) console.log(error);
