@@ -23,6 +23,7 @@ const getPluginMetadata = require("../lib/getPluginMetadata");
 const ignoreWalk = require("ignore-walk");
 const mkdirp = require("mkdirp");
 const filterAlwaysIgnoredFile = require("../lib/filterAlwaysIgnoredFile");
+const platform = require("../lib/platform");
 
 /**
  * Installs one or more plugins.
@@ -97,14 +98,18 @@ function install(opts, args) {
     });
 
     if (opts.autoreload) {
-      const cmd = `osascript ${path.join(
-        __dirname,
-        "../lib/script.scpt"
-      )} "Create Rectangle"`;
+      if (platform === "mac") {
+        const cmd = `osascript ${path.join(
+          __dirname,
+          "../lib/script.scpt"
+        )} "Create Rectangle"`;
 
-      require("child_process").exec(cmd, function(error, stdout, stderr) {
-        if (error) console.log(error);
-      });
+        require("child_process").exec(cmd, function(error, stdout, stderr) {
+          if (error) console.log(error);
+        });
+      } else {
+        cli.debug(`Autoreload [-a] only supported on macOS at this time.`);
+      }
     }
 
     return Object.assign({}, result, {
