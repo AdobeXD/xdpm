@@ -14,82 +14,100 @@
  * limitations under the License.
  */
 
-const cli = require("cli");
-const path = require("path");
-const localXdPath = require("../lib/localXdPath");
-const getPluginMetadata = require("../lib/getPluginMetadata");
-const chokidar = require("chokidar");
-const debounce = require("debounce");
+const path = require('path')
 
-const install = require("./install");
+const chokidar = require('chokidar')
+const debounce = require('debounce')
+
+const {Command, flags} = require('@oclif/command')
+
+const localXdPath = require('../../lib/localXdPath')
+const getPluginMetadata = require('../../lib/getPluginMetadata')
+const InstallCommand = require('./install')
 
 /**
  * Watches for changes in one or more plugins and re-installs them automatically
  */
-function watch (opts, args) {
-    const folder = localXdPath(opts);
+class WatchCommand extends Command {
+  async run() {
+    const {flags, argv} = this.parse(WatchCommand)
+    const folder = localXdPath(flags.which)
     if (!folder) {
-        console.fatal(`Could not determine Adobe XD folder.`);
-        return;
+      this.error('Could not determine Adobe XD folder.')
+      return
     }
 
-    if (args.length === 0) {
-        args.push("."); // assume we want to install the plugin in the cwd
-    }
+    // watch will always have to overwrite target plugins. Sorry.
+    flags.overwrite = true
 
-    if (opts.json) {
-        // this doesn't make sense!
-        cli.output(JSON.stringify({"error": "Can't use JSON output on watch."}));
-        return;
-    }
+    const results = argv.map(pluginToWatch => {
+      const sourcePath = path.resolve(pluginToWatch)
+      const result = {
+        path: sourcePath
+      }
 
-    opts.overwrite = true; // watch will always have to overwrite target plugins. Sorry.
-
-    const results = args.map(pluginToWatch => {
-        const sourcePath = path.resolve(pluginToWatch);
-        const result = {
-            path: sourcePath
-        };
-
-        const metadata = getPluginMetadata(sourcePath);
-        if (!metadata) {
-            return Object.assign({}, result, {
-                "error": "Can't watch a plugin that doesn't have a valid manifest.json"
-            });
-        }
-
-        const id = metadata.id;
-        if (!id) {
-            return Object.assign({}, result, {
-                "error": "Can't watch a plugin without a plugin ID in the manifest"
-            });
-        }
-
-        const watcher = chokidar.watch(sourcePath, {
-            ignored: /node_modules/,
-            cwd: sourcePath,
-            persistent: true
-        });
-
-        watcher.on("all", debounce(() => {
-            cli.info(`${metadata.name} changed; reinstalling...`);
-            install(opts, [ pluginToWatch ]); // only want to reinstall the changed plugin
-        }, 250));
-
+      const metadata = getPluginMetadata(sourcePath)
+      if (!metadata) {
         return Object.assign({}, result, {
-            "ok": `Watching ${metadata.name}...`
-        });
-    });
+          'error': "Can't watch a plugin that doesn't have a valid manifest.json"
+        })
+      }
+
+      const id = metadata.id
+      if (!id) {
+        return Object.assign({}, result, {
+          'error': "Can't watch a plugin without a plugin ID in the manifest"
+        })
+      }
+
+      const watcher = chokidar.watch(sourcePath, {
+        ignored: /node_modules/,
+        cwd: sourcePath,
+        persistent: true
+      })
+
+      watcher.on('all', debounce(() => {
+        this.log(`${metadata.name} changed; reinstalling...`)
+        let install = new InstallCommand()
+        // TODO!
+        // install.run()
+        // install(opts, [pluginToWatch]) // only want to reinstall the changed plugin
+      }, 250))
+
+      return Object.assign({}, result, {
+        'ok': `Watching ${metadata.name}...`
+      })
+    })
 
     results.forEach(result => {
-        if (result.ok) {
-            cli.info(result.ok);
-        } else {
-            cli.error(result.error);
-        }
-    });
+      if (result.ok) {
+        this.info(result.ok)
+      } else {
+        this.error(result.error)
+      }
+    })
 
-    cli.info(`Watching... press BREAK (CTRL+C) to exit.`)
+    this.log('Watching... press BREAK (CTRL+C) to exit.')
+  }
 }
 
-module.exports = watch;
+WatchCommand.description = `Watches a plugin folder and copies it into Adobe XD whenever the contents change
+...
+`
+
+WatchCommand.args = [{
+  name: 'srcPath',
+  default: '.'
+}]
+WatchCommand.strict = false
+
+WatchCommand.flags = {
+  which: flags.string({
+    description: 'Which Adobe XD instance to target',
+    char: 'w',
+    multiple: false,
+    options: ['release', 'prerelease', 'dev']
+  })
+}
+
+module.exports = WatchCommand

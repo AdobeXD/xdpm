@@ -14,104 +14,134 @@
  * limitations under the License.
  */
 
-const cli = require("cli");
-const shell = require("shelljs");
-const path = require("path");
-const fs = require("fs");
-const localXdPath = require("../lib/localXdPath");
-const getPluginMetadata = require("../lib/getPluginMetadata");
-const ignoreWalk = require("ignore-walk");
-const mkdirp = require("mkdirp");
-const filterAlwaysIgnoredFile = require("../lib/filterAlwaysIgnoredFile");
+const shell = require('shelljs')
+const path = require('path')
+const fs = require('fs')
+const mkdirp = require('mkdirp')
+
+const localXdPath = require('../../lib/localXdPath')
+const getPluginMetadata = require('../../lib/getPluginMetadata')
+const ignoreWalk = require('ignore-walk')
+const filterAlwaysIgnoredFile = require('../../lib/filterAlwaysIgnoredFile')
+
+const {Command, flags} = require('@oclif/command')
 
 /**
  * Installs one or more plugins.
  */
-function install(opts, args) {
-    const folder = localXdPath(opts);
+class InstallCommand extends Command {
+  async run() {
+    const {flags, argv} = this.parse(InstallCommand)
+
+    const folder = localXdPath({which: flags.which})
     if (!folder) {
-        console.fatal(`Could not determine Adobe XD folder.`);
-        return;
+      throw new Error('Could not determine Adobe XD folder.')
     }
 
-    if (args.length === 0) {
-        args.push("."); // assume we want to install the plugin in the cwd
-    }
+    const results = argv.map(pluginToInstall => {
+      const sourcePath = path.resolve(pluginToInstall)
+      const result = {
+        path: sourcePath
+      }
 
-    const results = args.map(pluginToInstall => {
-        const sourcePath = path.resolve(pluginToInstall);
-        const result = {
-            path: sourcePath
-        };
+      const metadata = getPluginMetadata(sourcePath)
+      if (!metadata) {
+        throw new Error('Missing manifest file.')
+      }
 
-        const metadata = getPluginMetadata(sourcePath);
-        if (!metadata) {
-            return Object.assign({}, result, {
-                "error": "Can't install a plugin that doesn't have a valid manifest.json"
-            });
+      const id = metadata.id
+      if (!id) {
+        throw new Error('Missing plugin ID in manifest file.')
+      }
+
+      const rootFolder = folder
+
+      const targetFolder = path.join(rootFolder, id)
+      if (fs.existsSync(targetFolder)) {
+        if (!flags.overwrite) {
+          throw new Error('Plugin exists already; use -o to overwrite')
         }
-
-        const id = metadata.id;
-        if (!id) {
-            return Object.assign({}, result, {
-                "error": "Can't install a plugin without a plugin ID in the manifest"
-            });
+        if (flags.clean) {
+          this.log(`(Cleaning) Removing files inside ${targetFolder}`)
+          // TODO: use fs-extra fs.removeSync
+          shell.rm('-Rf', path.join(targetFolder, '*'))
         }
+      } else {
+        fs.mkdir(targetFolder)
+      }
 
-        const rootFolder = localXdPath(opts);
-        const targetFolder = path.join(rootFolder, id);
-        if (fs.existsSync(targetFolder)) {
-            if (!opts.overwrite) {
-                return Object.assign({}, result, {
-                    "error": "Plugin exists already; use -o to overwrite"
-                });
-            }
-            if (opts.clean) {
-                cli.debug(`(Cleaning) Removing files inside ${targetFolder}`);
-                shell.rm("-Rf", path.join(targetFolder, "*"));
-            }
-        } else {
-            shell.mkdir(targetFolder);
+      // the comment below doesn't respect .xdignore (or other ignore files)
+      // but this is the gist of what we're trying to accomplish
+      // shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
+
+      const files = ignoreWalk.sync({
+        path: sourcePath,
+        ignoreFiles: ['.gitignore', '.xdignore', '.npmignore'],
+        includeEmpty: false
+      }).filter(filterAlwaysIgnoredFile)
+
+      files.forEach(file => {
+        const srcFile = path.join(sourcePath, file)
+        const tgtFile = path.join(targetFolder, file)
+        const tgtDir = path.dirname(tgtFile)
+        if (!fs.existsSync(tgtDir)) {
+          mkdirp.sync(tgtDir)
         }
+        shell.cp(srcFile, tgtFile)
+      })
+      return Object.assign({}, result, {
+        ok: `"${metadata.name}"@${metadata.version} [${metadata.id}] installed successfully.`
+      })
+    })
 
-        // the comment below doesn't respect .xdignore (or other ignore files)
-        // but this is the gist of what we're trying to accomplish
-        // shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
-
-        const files = ignoreWalk.sync({
-            path: sourcePath,
-            ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
-            includeEmpty: false,
-        }).filter(filterAlwaysIgnoredFile);
-
-        files.forEach(file => {
-            const srcFile = path.join(sourcePath, file);
-            const tgtFile = path.join(targetFolder, file);
-            const tgtDir = path.dirname(tgtFile);
-            if (!fs.existsSync(tgtDir)) {
-                mkdirp.sync(tgtDir);
-            }
-            shell.cp(srcFile, tgtFile);
-        });
-
-        return Object.assign({}, result, {
-            "ok": `"${metadata.name}"@${metadata.version} [${metadata.id}] installed successfully.`
-        });
-    });
-
-    if (opts.json) {
-        return results;
+    if (flags.json) {
+      return results
     }
 
     results.forEach(result => {
-        if (result.ok) {
-            cli.ok(result.ok);
-        } else {
-            cli.error(result.error);
-        }
-    });
-
-    return results;
+      if (result.ok) {
+        this.log('ok:' + result.ok)
+      } else {
+        this.error('error:' + result.error)
+      }
+    })
+    return results
+  }
 }
 
-module.exports = install;
+InstallCommand.description = `Copy one or more plugins in a develoment folder into Adobe XD's develop folder
+...
+Install a plugin in development mode
+`
+
+InstallCommand.args = [{
+  name: 'srcPath',
+  default: '.'
+}]
+
+InstallCommand.strict = false
+
+InstallCommand.flags = {
+  clean: flags.boolean({
+    description: 'Clean before install',
+    char: 'c',
+    default: false
+  }),
+  json: flags.boolean({
+    description: 'Generate JSON output',
+    char: 'j',
+    default: false
+  }),
+  overwrite: flags.boolean({
+    description: 'Allow overwriting plugins',
+    char: 'o',
+    default: false
+  }),
+  which: flags.string({
+    description: 'Which Adobe XD instance to target',
+    char: 'w',
+    multiple: false,
+    options: ['release', 'prerelease', 'dev']
+  })
+}
+module.exports = InstallCommand

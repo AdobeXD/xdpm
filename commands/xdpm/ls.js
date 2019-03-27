@@ -14,39 +14,77 @@
  * limitations under the License.
  */
 
-const cli = require("cli");
-const shell = require("shelljs");
-const path = require("path");
-const localXdPath = require("../lib/localXdPath");
-const getPluginMetadata = require("../lib/getPluginMetadata");
+const shell = require('shelljs')
+const path = require('path')
+const {Command, flags} = require('@oclif/command')
 
-function ls (opts, args) {
-    const folder = localXdPath(opts);
+const localXdPath = require('../../lib/localXdPath')
+const getPluginMetadata = require('../../lib/getPluginMetadata')
+
+class ListCommand extends Command {
+  async run() {
+    const {flags, argv} = this.parse(ListCommand)
+    const folder = localXdPath({which: flags.which})
     if (!folder) {
-        console.fatal(`Could not determine Adobe XD folder.`);
+      throw new Error('Could not determine Adobe XD folder.')
     }
-    cli.info(`Listing plugins inside ${folder}`);
-    const folders = shell.ls("-d", path.join(folder, "*"));
+    this.log(`Listing plugins inside ${folder}`)
+
+    const folders = shell.ls('-d', path.join(folder, '*'))
+
     const plugins = folders.filter(pluginPath => {
-        const base = path.basename(pluginPath);
-        const metadata = getPluginMetadata(pluginPath);
-        if (args.length > 0 && metadata && (!args.includes(base) && !args.includes(metadata.id))) {
-            return false;
-        }
-        if (metadata && !opts.json) {
-            cli.output(`${base}: "${metadata.name}"@${metadata.version} [${metadata.id}]`);
-        }
-        return !!metadata;
-    });
-    if (opts.json) {
-        cli.output(JSON.stringify(plugins.map(pluginPath => ({
-            path: pluginPath,
-            metadata: getPluginMetadata(pluginPath)
-        })), null, 2));
+      const base = path.basename(pluginPath)
+      const metadata = getPluginMetadata(pluginPath)
+      if (argv.length > 0 &&
+          metadata && (!argv.includes(base) && !argv.includes(metadata.id))) {
+        return false
+      }
+      if (metadata && !flags.json) {
+        this.log(`${base}: "${metadata.name}"@${metadata.version} [${metadata.id}]`)
+      }
+      return metadata !== null
+    })
+
+    if (flags.json) {
+      this.log(JSON.stringify(plugins.map(pluginPath => ({
+        path: pluginPath,
+        metadata: getPluginMetadata(pluginPath)
+      })), null, 2))
     }
+
     if (plugins.length === 0) {
-        cli.error(`No valid plugins installed.`);
+      this.error('No valid plugins installed.')
     }
+  }
 }
 
-module.exports = ls;
+ListCommand.description = `Lists plugins installed in Adobe XD in development mode.
+...
+`
+ListCommand.strict = false
+
+ListCommand.flags = {
+  clean: flags.boolean({
+    description: 'Clean before install',
+    char: 'c',
+    default: false
+  }),
+  json: flags.boolean({
+    description: 'Generate JSON output',
+    char: 'j',
+    default: false
+  }),
+  overwrite: flags.boolean({
+    description: 'Allow overwriting plugins',
+    char: 'o',
+    default: false
+  }),
+  which: flags.string({
+    description: 'Which Adobe XD instance to target',
+    char: 'w',
+    multiple: false,
+    options: ['release', 'prerelease', 'dev']
+  })
+}
+
+module.exports = ListCommand

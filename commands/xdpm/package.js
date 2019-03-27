@@ -13,94 +13,127 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const path = require('path')
+const fs = require('fs')
 
-const cli = require("cli");
-const shell = require("shelljs");
-const path = require("path");
-const fs = require("fs");
-const localXdPath = require("../lib/localXdPath");
-const getPluginMetadata = require("../lib/getPluginMetadata");
-const validate = require("../lib/validate");
+const getPluginMetadata = require('../../lib/getPluginMetadata')
+const validate = require('../../lib/validate')
 
-const yazl = require("yazl");
-const ignoreWalk = require("ignore-walk");
-const filterAlwaysIgnoredFile = require("../lib/filterAlwaysIgnoredFile");
-
+const yazl = require('yazl')
+const ignoreWalk = require('ignore-walk')
+const filterAlwaysIgnoredFile = require('../../lib/filterAlwaysIgnoredFile')
 
 /**
  * Packages one or more plugins
  */
-function package(opts, args) {
+const {Command, flags} = require('@oclif/command')
 
-    if (args.length === 0) {
-        args.push("."); // assume we want to package the plugin in the cwd
-    }
+class PackageCommand extends Command {
+  async run() {
+    const { flags, argv } = this.parse(PackageCommand)
 
-    const results = args.map(pluginToPackage => {
-        const sourcePath = path.resolve(pluginToPackage);
-        const result = {
-            path: sourcePath
-        };
+    const results = argv.map(pluginToPackage => {
+      const sourcePath = path.resolve(pluginToPackage)
+      const result = {
+        path: sourcePath
+      }
 
-        const metadata = getPluginMetadata(sourcePath);
-        if (!metadata) {
-            return Object.assign({}, result, {
-                "error": "Can't package a plugin that doesn't have a valid manifest.json"
-            });
-        }
+      const metadata = getPluginMetadata(sourcePath)
+      if (!metadata) {
+        return Object.assign({}, result, {
+          'error': "Can't package a plugin that doesn't have a valid manifest.json"
+        })
+      }
 
-        const errors = validate(metadata, {root: sourcePath});
-        if (errors.length > 0) {
-            return Object.assign({}, result, {
-                "error": "Can't package a plugin that has validation errors in the maniest.json:\n" + errors.join("\n")
-            });
-        }
+      const errors = validate(metadata, { root: sourcePath })
+      if (errors.length > 0) {
+        return Object.assign({}, result, {
+          'error': "Can't package a plugin that has validation errors in the maniest.json:\n" + errors.join('\n')
+        })
+      }
 
-        const id = metadata.id;
-        if (!id) {
-            return Object.assign({}, result, {
-                "error": "Can't package a plugin without a plugin ID in the manifest"
-            });
-        }
+      const id = metadata.id
+      if (!id) {
+        return Object.assign({}, result, {
+          'error': "Can't package a plugin without a plugin ID in the manifest"
+        })
+      }
 
-        result.targetZip = path.join(sourcePath, '..', path.basename(sourcePath) + ".xdx");
+      result.targetZip = path.join(sourcePath, '..', path.basename(sourcePath) + '.xdx')
 
-        const zipfile = new yazl.ZipFile();
+      const zipfile = new yazl.ZipFile()
 
-        zipfile.outputStream.pipe(fs.createWriteStream(result.targetZip)).on("close", function() {
-        });
+      zipfile.outputStream.pipe(fs.createWriteStream(result.targetZip))
+      .on('close', function () {
+        // this.log('closing ... ')
+      })
 
-        const files = ignoreWalk.sync({
-            path: sourcePath,
-            ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
-            includeEmpty: false,
-        }).filter(filterAlwaysIgnoredFile);
+      const files = ignoreWalk.sync({
+        path: sourcePath,
+        ignoreFiles: ['.gitignore', '.xdignore', '.npmignore'],
+        includeEmpty: false
+      }).filter(filterAlwaysIgnoredFile)
 
-        files.forEach(file => {
-            zipfile.addFile(path.join(sourcePath, file), file);
-        });
+      files.forEach(file => {
+        zipfile.addFile(path.join(sourcePath, file), file)
+      })
 
+      zipfile.end()
 
-        zipfile.end();
+      result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] packaged successfully at ${result.targetZip}`
+      return result
+    })
 
-        result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] packaged successfully at ${result.targetZip}`;
-        return result;
-    });
-
-    if (opts.json) {
-        cli.output(JSON.stringify(results));
-        return results;
+    if (flags.json) {
+      this.log(JSON.stringify(results))
+      return results
     }
 
     results.forEach(result => {
-        if (result.ok) {
-            cli.ok(result.ok);
-        } else {
-            cli.error(result.error);
-        }
-    });
-
-    return results;
+      if (result.ok) {
+        this.log(result.ok)
+      } else {
+        this.error(result.error)
+      }
+    })
+    return results
+  }
 }
 
-module.exports = package;
+PackageCommand.description = `Packages a plugin folder into an xdx file suitable for distribution
+...
+`
+// allow variadic args
+PackageCommand.strict = false
+
+// this gives an easy default
+PackageCommand.args = [{
+  name: 'dir',
+  default: '.'
+}]
+
+PackageCommand.flags = {
+  clean: flags.boolean({
+    description: 'Clean before install',
+    char: 'c',
+    default: false
+  }),
+  json: flags.boolean({
+    description: 'Generate JSON output',
+    char: 'j',
+    default: false
+  }),
+  overwrite: flags.boolean({
+    description: 'Allow overwriting plugins',
+    char: 'o',
+    default: false
+  }),
+  which: flags.string({
+    description: 'Which Adobe XD instance to target',
+    char: 'w',
+    multiple: false,
+    options: ['release', 'prerelease', 'dev']
+  })
+}
+
+module.exports = PackageCommand

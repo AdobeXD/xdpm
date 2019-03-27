@@ -14,57 +14,93 @@
  * limitations under the License.
  */
 
-const cli = require("cli");
-const path = require("path");
-const getPluginMetadata = require("../lib/getPluginMetadata");
-const validate = require("../lib/validate");
+const path = require('path')
+const getPluginMetadata = require('../../lib/getPluginMetadata')
+const validate = require('../../lib/validate')
+
+const {Command, flags} = require('@oclif/command')
 
 /**
  * validates one or more plugins
  */
-function validatePlugin(opts, args) {
-    if (args.length === 0) {
-        args.push("."); // assume we want to package the plugin in the cwd
-    }
+class ValidateCommand extends Command {
+  async run() {
+    const {flags, argv} = this.parse(ValidateCommand)
 
-    const results = args.map(pluginToValidate => {
-        const sourcePath = path.resolve(pluginToValidate);
-        const result = {
-            path: sourcePath
-        };
+    const results = argv.map(pluginToValidate => {
+      const sourcePath = path.resolve(pluginToValidate)
+      const result = {
+        path: sourcePath
+      }
 
-        const metadata = getPluginMetadata(sourcePath);
-        if (!metadata) {
-            return Object.assign({}, result, {
-                "error": `Plugin ${pluginToValidate} doesn't have a manifest.`
-            });
-        }
+      const metadata = getPluginMetadata(sourcePath)
+      if (!metadata) {
+        return Object.assign({}, result, {
+          'error': `Plugin ${pluginToValidate} doesn't have a manifest.`
+        })
+      }
 
-        const errors = validate(metadata, {root: sourcePath});
-        if (errors.length > 0) {
-            return Object.assign({}, result, {
-                "error": `Plugin ${pluginToValidate} has validation errors in the manifest.json:\n` + errors.join("\n")
-            });
-        }
+      const errors = validate(metadata, { root: sourcePath })
+      if (errors.length > 0) {
+        return Object.assign({}, result, {
+          'error': `Plugin ${pluginToValidate} has validation errors in the manifest.json:\n` + errors.join('\n')
+        })
+      }
 
-        result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] validated successfully`;
-        return result;
-    });
+      result.ok = `"${metadata.name}"@${metadata.version} [${metadata.id}] validated successfully`
+      return result
+    })
 
-    if (opts.json) {
-        cli.output(JSON.stringify(results));
-        return results;
+    if (flags.json) {
+      this.log(JSON.stringify(results))
+      return results
     }
 
     results.forEach(result => {
-        if (result.ok) {
-            cli.ok(result.ok);
-        } else {
-            cli.error(result.error);
-        }
-    });
+      if (result.ok) {
+        this.log(result.ok)
+      } else {
+        this.error(result.error)
+      }
+    })
 
-    return results;
+    return results
+  }
 }
 
-module.exports = validatePlugin;
+ValidateCommand.description = `Validates a plugin's manifest to ensure that it will be accepted by XD.
+...
+`
+
+ValidateCommand.args = [{
+  name: 'srcPath',
+  default: '.'
+}]
+
+ValidateCommand.strict = false
+
+ValidateCommand.flags = {
+  clean: flags.boolean({
+    description: 'Clean before install',
+    char: 'c',
+    default: false
+  }),
+  json: flags.boolean({
+    description: 'Generate JSON output',
+    char: 'j',
+    default: false
+  }),
+  overwrite: flags.boolean({
+    description: 'Allow overwriting plugins',
+    char: 'o',
+    default: false
+  }),
+  which: flags.string({
+    description: 'Which Adobe XD instance to target',
+    char: 'w',
+    multiple: false,
+    options: ['release', 'prerelease', 'dev']
+  })
+}
+
+module.exports = ValidateCommand
