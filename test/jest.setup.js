@@ -54,7 +54,7 @@ global.fakeFileSystem = {
   }
 }
 // seed the fake filesystem
-fakeFileSystem.reset()
+fakeFileSystem.clear()
 
 global.createTestBaseFlagsFunction = (TheCommand, BaseCommand) => {
   return global.createTestFlagsFunction(TheCommand, BaseCommand.flags)

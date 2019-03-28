@@ -1,0 +1,28 @@
+{
+    "env": {
+        "node": true,
+        "es6": true,
+        "jest": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 2018
+    },
+    "plugins": [
+        "jest"
+    ],
+    "extends": [
+        "plugin:jest/recommended",
+        "standard"
+    ],
+    "rules": {
+        "no-var": 2
+    },
+    "globals": {
+      "fixtureFile": true,
+      "fixtureJson": true,
+      "fixtureZip": true,
+      "fakeFileSystem": true,
+      "createTestBaseFlagsFunction": true,
+      "createTestFlagsFunction": true
+    }
+}
