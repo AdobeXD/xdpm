@@ -7,7 +7,8 @@
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "eslint .",
     "prepack": "oclif-dev manifest && oclif-dev readme",
-    "test": "echo NO TESTS",
+    "test": "npm run unit-tests",
+    "unit-tests": "jest --ci --passWithNoTests",
     "version": "oclif-dev readme && git add README.md"
   },
   "bin": "index.js",
@@ -45,7 +46,24 @@
     "@oclif/plugin-help": "^2.1.6",
     "eslint": "^5.15.3",
     "eslint-config-oclif": "^3.1.0",
-    "globby": "^8.0.2"
+    "globby": "^8.0.2",
+    "@babel/core": "^7.3.3",
+    "@babel/preset-env": "^7.3.1",
+    "@oclif/test": "^1",
+    "babel-jest": "^24.1.0",
+    "babel-runtime": "^6.26.0",
+    "dedent-js": "^1.0.1",
+    "eol": "^0.9.1",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.13.10",
+    "eslint-plugin-jest": "^22.1.2",
+    "eslint-plugin-node": "^7.0.0",
+    "eslint-plugin-promise": "^4.0.0",
+    "eslint-plugin-standard": "^4.0.0",
+    "jest": "^24.1.0",
+    "jest-junit": "^6.3.0",
+    "jest-plugin-fs": "^2.9.0",
+    "stdout-stderr": "^0.1.9"
   },
   "files": [
     "/npm-shrinkwrap.json",
@@ -65,5 +83,29 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "src/**/*.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 100,
+        "lines": 100,
+        "statements": 100
+      }
+    },
+    "testPathIgnorePatterns": [
+      "<rootDir>/jest.setup.js"
+    ],
+    "reporters": [
+      "default",
+      "jest-junit"
+    ],
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": [
+      "./test/jest.setup.js"
+    ]
   }
 }
