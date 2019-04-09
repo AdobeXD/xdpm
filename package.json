@@ -2,7 +2,7 @@
   "name": "@adobe/xdpm",
   "version": "2.0.0",
   "description": "Adobe XD CLI Plugin Manager Utility",
-  "main": "index.js",
+  "main": "bin/run",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
     "posttest": "eslint .",
@@ -11,7 +11,7 @@
     "unit-tests": "jest --ci",
     "version": "oclif-dev readme && git add README.md"
   },
-  "bin": "index.js",
+  "bin": "bin/run",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AdobeXD/xdpm.git"
