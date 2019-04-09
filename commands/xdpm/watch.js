@@ -19,7 +19,7 @@ const path = require('path')
 const chokidar = require('chokidar')
 const debounce = require('debounce')
 
-const {Command, flags} = require('@oclif/command')
+const { Command, flags } = require('@oclif/command')
 
 const localXdPath = require('../../lib/localXdPath')
 const getPluginMetadata = require('../../lib/getPluginMetadata')
@@ -29,16 +29,13 @@ const InstallCommand = require('./install')
  * Watches for changes in one or more plugins and re-installs them automatically
  */
 class WatchCommand extends Command {
-  async run() {
-    const {flags, argv} = this.parse(WatchCommand)
+  async run () {
+    const { flags, argv } = this.parse(WatchCommand)
     const folder = localXdPath(flags.which)
     if (!folder) {
       this.error('Could not determine Adobe XD folder.')
       return
     }
-
-    // watch will always have to overwrite target plugins. Sorry.
-    flags.overwrite = true
 
     const results = argv.map(pluginToWatch => {
       const sourcePath = path.resolve(pluginToWatch)
@@ -69,9 +66,9 @@ class WatchCommand extends Command {
       watcher.on('all', debounce(() => {
         this.log(`${metadata.name} changed; reinstalling...`)
         let install = new InstallCommand()
-        // TODO!
-        // install.run()
-        // install(opts, [pluginToWatch]) // only want to reinstall the changed plugin
+        // watch will always have to overwrite target plugins. Sorry.
+        install.argv = ['-w', flags.which, '-o', 'true', pluginToWatch]
+        return install.run()
       }, 250))
 
       return Object.assign({}, result, {
@@ -91,9 +88,7 @@ class WatchCommand extends Command {
   }
 }
 
-WatchCommand.description = `Watches a plugin folder and copies it into Adobe XD whenever the contents change
-...
-`
+WatchCommand.description = `Watches a plugin folder and copies it into Adobe XD whenever the contents change`
 
 WatchCommand.args = [{
   name: 'srcPath',

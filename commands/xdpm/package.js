@@ -23,13 +23,13 @@ const yazl = require('yazl')
 const ignoreWalk = require('ignore-walk')
 const filterAlwaysIgnoredFile = require('../../lib/filterAlwaysIgnoredFile')
 
+const { Command, flags } = require('@oclif/command')
+
 /**
  * Packages one or more plugins
  */
-const {Command, flags} = require('@oclif/command')
-
 class PackageCommand extends Command {
-  async run() {
+  async run () {
     const { flags, argv } = this.parse(PackageCommand)
 
     const results = argv.map(pluginToPackage => {
@@ -64,9 +64,7 @@ class PackageCommand extends Command {
       const zipfile = new yazl.ZipFile()
 
       zipfile.outputStream.pipe(fs.createWriteStream(result.targetZip))
-      .on('close', function () {
-        // this.log('closing ... ')
-      })
+        .on('close', function () { /* todo maybe? */ })
 
       const files = ignoreWalk.sync({
         path: sourcePath,

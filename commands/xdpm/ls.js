@@ -16,15 +16,15 @@
 
 const shell = require('shelljs')
 const path = require('path')
-const {Command, flags} = require('@oclif/command')
+const { Command, flags } = require('@oclif/command')
 
 const localXdPath = require('../../lib/localXdPath')
 const getPluginMetadata = require('../../lib/getPluginMetadata')
 
 class ListCommand extends Command {
-  async run() {
-    const {flags, argv} = this.parse(ListCommand)
-    const folder = localXdPath({which: flags.which})
+  async run () {
+    const { flags, argv } = this.parse(ListCommand)
+    const folder = localXdPath({ which: flags.which })
     if (!folder) {
       throw new Error('Could not determine Adobe XD folder.')
     }

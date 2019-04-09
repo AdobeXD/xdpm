@@ -18,14 +18,14 @@ const path = require('path')
 const getPluginMetadata = require('../../lib/getPluginMetadata')
 const validate = require('../../lib/validate')
 
-const {Command, flags} = require('@oclif/command')
+const { Command, flags } = require('@oclif/command')
 
 /**
  * validates one or more plugins
  */
 class ValidateCommand extends Command {
-  async run() {
-    const {flags, argv} = this.parse(ValidateCommand)
+  async run () {
+    const { flags, argv } = this.parse(ValidateCommand)
 
     const results = argv.map(pluginToValidate => {
       const sourcePath = path.resolve(pluginToValidate)
@@ -68,9 +68,7 @@ class ValidateCommand extends Command {
   }
 }
 
-ValidateCommand.description = `Validates a plugin's manifest to ensure that it will be accepted by XD.
-...
-`
+ValidateCommand.description = `Validates a plugin's manifest to ensure that it will be accepted by XD.`
 
 ValidateCommand.args = [{
   name: 'srcPath',

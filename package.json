@@ -8,7 +8,7 @@
     "posttest": "eslint .",
     "prepack": "oclif-dev manifest && oclif-dev readme",
     "test": "npm run unit-tests",
-    "unit-tests": "jest --ci --passWithNoTests",
+    "unit-tests": "jest --ci",
     "version": "oclif-dev readme && git add README.md"
   },
   "bin": "index.js",

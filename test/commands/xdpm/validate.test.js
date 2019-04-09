@@ -11,7 +11,7 @@ governing permissions and limitations under the License.
 */
 
 const { stdout } = require('stdout-stderr')
-const TheCommand = require('../../../commands/xdpm/install.js')
+const TheCommand = require('../../../commands/xdpm/validate.js')
 
 test('exports', async () => {
   expect(typeof TheCommand).toEqual('function')
@@ -19,15 +19,4 @@ test('exports', async () => {
 
 test('description', async () => {
   expect(TheCommand.description).toBeDefined()
-})
-
-test('aliases', async () => {
-  expect(TheCommand.aliases).toEqual([])
-})
-
-test('flags', async () => {
-  let cleanFlag = TheCommand.flags.clean
-  expect(cleanFlag).toBeDefined()
-  expect(typeof cleanFlag).toBe('object')
-  expect(cleanFlag.char).toBe('c')
 })

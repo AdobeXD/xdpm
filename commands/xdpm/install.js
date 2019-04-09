@@ -24,16 +24,15 @@ const getPluginMetadata = require('../../lib/getPluginMetadata')
 const ignoreWalk = require('ignore-walk')
 const filterAlwaysIgnoredFile = require('../../lib/filterAlwaysIgnoredFile')
 
-const {Command, flags} = require('@oclif/command')
+const { Command, flags } = require('@oclif/command')
 
 /**
  * Installs one or more plugins.
  */
 class InstallCommand extends Command {
-  async run() {
-    const {flags, argv} = this.parse(InstallCommand)
-
-    const folder = localXdPath({which: flags.which})
+  async run () {
+    const { flags, argv } = this.parse(InstallCommand)
+    const folder = localXdPath({ which: flags.which })
     if (!folder) {
       throw new Error('Could not determine Adobe XD folder.')
     }
@@ -46,12 +45,16 @@ class InstallCommand extends Command {
 
       const metadata = getPluginMetadata(sourcePath)
       if (!metadata) {
-        throw new Error('Missing manifest file.')
+        return Object.assign({}, result, {
+          'error': 'Can\'t install a plugin that doesn\'t have a valid manifest.json'
+        })
       }
 
       const id = metadata.id
       if (!id) {
-        throw new Error('Missing plugin ID in manifest file.')
+        return Object.assign({}, result, {
+          'error': 'Can\'t install a plugin without a plugin ID in the manifest'
+        })
       }
 
       const rootFolder = folder
@@ -59,7 +62,9 @@ class InstallCommand extends Command {
       const targetFolder = path.join(rootFolder, id)
       if (fs.existsSync(targetFolder)) {
         if (!flags.overwrite) {
-          throw new Error('Plugin exists already; use -o to overwrite')
+          return Object.assign({}, result, {
+            'error': 'Plugin exists already; use -o to overwrite'
+          })
         }
         if (flags.clean) {
           this.log(`(Cleaning) Removing files inside ${targetFolder}`)
@@ -102,7 +107,7 @@ class InstallCommand extends Command {
       if (result.ok) {
         this.log('ok:' + result.ok)
       } else {
-        this.error('error:' + result.error)
+        this.error(result.error)
       }
     })
     return results
@@ -110,8 +115,8 @@ class InstallCommand extends Command {
 }
 
 InstallCommand.description = `Copy one or more plugins in a develoment folder into Adobe XD's develop folder
-...
-Install a plugin in development mode
+
+Install an XD plugin in development mode
 `
 
 InstallCommand.args = [{
