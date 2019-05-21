@@ -1,6 +1,6 @@
 {
   "name": "@adobe/xdpm",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Adobe XD CLI Plugin Manager Utility",
   "main": "index.js",
   "scripts": {
