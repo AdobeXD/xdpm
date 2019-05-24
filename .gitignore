@@ -59,3 +59,9 @@ typings/
 
 # next.js build output
 .next
+
+# why must you mock me Apple?
+.DS_Store
+
+# test cruft
+junit.xml
