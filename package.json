@@ -4,7 +4,9 @@
   "description": "Adobe XD CLI Plugin Manager Utility",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --fix lib && eslint --fix commands",
+    "precommit": "lint-staged"
   },
   "bin": "index.js",
   "repository": {
@@ -26,15 +28,23 @@
   },
   "homepage": "https://github.com/AdobeXD/xdpm#readme",
   "dependencies": {
-    "chokidar": "^2.0.4",
+    "chokidar": "^3.1.1",
     "cli": "^1.0.1",
     "debounce": "^1.2.0",
-    "ignore-walk": "^3.0.1",
+    "ignore-walk": "^3.0.2",
     "mkdirp": "^0.5.1",
-    "shelljs": "^0.8.2",
-    "yazl": "^2.4.3"
+    "shelljs": "^0.8.3",
+    "yazl": "^2.5.1"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
+  },
+  "devDependencies": {
+    "eslint": "^6.4.0",
+    "eslint-config-prettier": "^6.3.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-prettier": "^3.1.1",
+    "lint-staged": "^9.3.0",
+    "prettier": "^1.18.2"
   }
 }

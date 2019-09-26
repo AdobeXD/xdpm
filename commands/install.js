@@ -47,14 +47,16 @@ function install(opts, args) {
         const metadata = getPluginMetadata(sourcePath);
         if (!metadata) {
             return Object.assign({}, result, {
-                "error": "Can't install a plugin that doesn't have a valid manifest.json"
+                error:
+                    "Can't install a plugin that doesn't have a valid manifest.json"
             });
         }
 
         const id = metadata.id;
         if (!id) {
             return Object.assign({}, result, {
-                "error": "Can't install a plugin without a plugin ID in the manifest"
+                error:
+                    "Can't install a plugin without a plugin ID in the manifest"
             });
         }
 
@@ -63,7 +65,7 @@ function install(opts, args) {
         if (fs.existsSync(targetFolder)) {
             if (!opts.overwrite) {
                 return Object.assign({}, result, {
-                    "error": "Plugin exists already; use -o to overwrite"
+                    error: "Plugin exists already; use -o to overwrite"
                 });
             }
             if (opts.clean) {
@@ -78,11 +80,13 @@ function install(opts, args) {
         // but this is the gist of what we're trying to accomplish
         // shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
 
-        const files = ignoreWalk.sync({
-            path: sourcePath,
-            ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
-            includeEmpty: false,
-        }).filter(filterAlwaysIgnoredFile);
+        const files = ignoreWalk
+            .sync({
+                path: sourcePath,
+                ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
+                includeEmpty: false
+            })
+            .filter(filterAlwaysIgnoredFile);
 
         files.forEach(file => {
             const srcFile = path.join(sourcePath, file);
@@ -95,7 +99,7 @@ function install(opts, args) {
         });
 
         return Object.assign({}, result, {
-            "ok": `"${metadata.name}"@${metadata.version} [${metadata.id}] installed successfully.`
+            ok: `"${metadata.name}"@${metadata.version} [${metadata.id}] installed successfully.`
         });
     });
 

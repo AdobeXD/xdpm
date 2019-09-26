@@ -26,12 +26,10 @@ const yazl = require("yazl");
 const ignoreWalk = require("ignore-walk");
 const filterAlwaysIgnoredFile = require("../lib/filterAlwaysIgnoredFile");
 
-
 /**
  * Packages one or more plugins
  */
 function package(opts, args) {
-
     if (args.length === 0) {
         args.push("."); // assume we want to package the plugin in the cwd
     }
@@ -45,41 +43,51 @@ function package(opts, args) {
         const metadata = getPluginMetadata(sourcePath);
         if (!metadata) {
             return Object.assign({}, result, {
-                "error": "Can't package a plugin that doesn't have a valid manifest.json"
+                error:
+                    "Can't package a plugin that doesn't have a valid manifest.json"
             });
         }
 
-        const errors = validate(metadata, {root: sourcePath});
+        const errors = validate(metadata, { root: sourcePath });
         if (errors.length > 0) {
             return Object.assign({}, result, {
-                "error": "Can't package a plugin that has validation errors in the manifest.json:\n" + errors.join("\n")
+                error:
+                    "Can't package a plugin that has validation errors in the manifest.json:\n" +
+                    errors.join("\n")
             });
         }
 
         const id = metadata.id;
         if (!id) {
             return Object.assign({}, result, {
-                "error": "Can't package a plugin without a plugin ID in the manifest"
+                error:
+                    "Can't package a plugin without a plugin ID in the manifest"
             });
         }
 
-        result.targetZip = path.join(sourcePath, '..', path.basename(sourcePath) + ".xdx");
+        result.targetZip = path.join(
+            sourcePath,
+            "..",
+            path.basename(sourcePath) + ".xdx"
+        );
 
         const zipfile = new yazl.ZipFile();
 
-        zipfile.outputStream.pipe(fs.createWriteStream(result.targetZip)).on("close", function() {
-        });
+        zipfile.outputStream
+            .pipe(fs.createWriteStream(result.targetZip))
+            .on("close", function() {});
 
-        const files = ignoreWalk.sync({
-            path: sourcePath,
-            ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
-            includeEmpty: false,
-        }).filter(filterAlwaysIgnoredFile);
+        const files = ignoreWalk
+            .sync({
+                path: sourcePath,
+                ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
+                includeEmpty: false
+            })
+            .filter(filterAlwaysIgnoredFile);
 
         files.forEach(file => {
             zipfile.addFile(path.join(sourcePath, file), file);
         });
-
 
         zipfile.end();
 
