@@ -2,6 +2,7 @@
 
 `xdpm` is a command line tool that makes it easy to develop Adobe XD plugins. It is capable of the following tasks:
 
+* `bootstrap`: Creates a new plugin scaffold: headless, panel, react, modal. Optionally specify the name for your new plugin's directory.
 * `install`: copies one or more plugins in a develoment folder into Adobe XD's develop folder
 * `watch`: Watches a plugin folder and copies it into Adobe XD whenever the contents change
 * `validate`: Validates a plugin's manifest to ensure that it will be accepted by XD.
@@ -20,6 +21,23 @@ If you've cloned the repository:
 npm install
 npm link
 ```
+
+## Bootstrapping a plugin
+
+any of the following:
+
+```
+$ xdpm bootstrap
+$ xdpm bootstrap panel
+$ xdpm bootstrap panel my-panel
+```
+
+Plugin type options:
+
+- headless (default)
+- panel
+- modal
+- react
 
 ## Installing a plugin
 
