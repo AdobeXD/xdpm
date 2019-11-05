@@ -17,11 +17,15 @@
 
 const cli = require("cli");
 const package = require("./package.json");
+const sampleDirs = require("./commands/bootstrap").sampleDirs;
+const sampleTypes = Object.keys(sampleDirs).filter(el => el !== "default").join(", ")
 
 cli.enable("status");
 
+
+
 const commands = {
-  bootstrap: "Create a new plugin scaffold",
+  bootstrap: `Create a new plugin scaffold: ${sampleTypes}`,
   install: "Install a plugin in development mode",
   ls: "List all plugins in development mode",
   package: "Package a plugin",
@@ -51,7 +55,7 @@ const options = {
 const parsedOpts = cli.parse(options, commands);
 
 if (parsedOpts.json) {
-  cli.status = function() {};
+  cli.status = function () { };
 } else {
   cli.info(`xdpm ${package.version} - XD Plugin Manager CLI`);
   cli.info(`Use of this tool means you agree to the Adobe Terms of Use at
@@ -82,6 +86,6 @@ switch (command.toLowerCase()) {
     require("./commands/validate")(parsedOpts, args);
     break;
   case "bootstrap":
-    require("./commands/bootstrap")(parsedOpts, args);
+    require("./commands/bootstrap").bootstrap(parsedOpts, args);
     break;
 }

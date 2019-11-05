@@ -13,22 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-const fs = require("fs");
-const path = require("path");
 const shell = require("shelljs");
 
 const dirname = "my-plugin";
-const fileNames = [
-  "CODE_OF_CONDUCT.md",
-  "LICENSE",
-  "CONTRIBUTING.md",
-  "PULL_REQUEST_TEMPLATE.md",
-  "COPYRIGHT",
-  "ISSUE_TEMPLATE.md"
-];
+const repo = "git@github.com:AdobeXD/plugin-samples.git";
+const sampleDirs = {
+  default: "quick-start",
+  headless: "quick-start",
+  panel: "quick-start-panel",
+  react: "quick-start-react",
+  modal: "ui-html"
+}
 
 function bootstrap(opts, args) {
+  const sampleDir = sampleDirs[args[0] || "default"] || sampleDirs.default;
+
   if (!shell.which("git")) {
     shell.echo("Sorry, `xdpm bootstrap` requires git.");
     shell.exit(1);
@@ -36,10 +35,10 @@ function bootstrap(opts, args) {
 
   // git clone from I/O console starter proj
   shell.exec(
-    `git clone git@github.com:AdobeXD/io-console-starter-project.git ${dirname}`,
-    function(code, stdout, stderr) {
+    `git clone "${repo}" "${dirname}"`,
+    function (code, stdout, stderr) {
       if (code === 0) {
-        cleanupClone();
+        cleanupClone(sampleDir);
       } else {
         shell.echo("Failed to clone starter project.");
       }
@@ -47,19 +46,13 @@ function bootstrap(opts, args) {
   );
 }
 
-function cleanupClone() {
-  const dirpath = path.resolve(`./${dirname}/`);
-
-  fileNames.forEach(filename => {
-    fs.unlink(`${dirpath}/${filename}`, err => {
-      if (err) {
-        shell.echo("err");
-        shell.exit(1);
-      }
-    });
-  });
-
-  shell.rm("-rf", `${dirpath}/.git`);
+function cleanupClone(sampleDir) {
+  shell.cd(`./${dirname}`);
+  shell.exec(`git filter-branch --subdirectory-filter "${sampleDir}"`);
+  shell.rm("-rf", `.git`);
 }
 
-module.exports = bootstrap;
+module.exports = {
+  bootstrap,
+  sampleDirs
+};
