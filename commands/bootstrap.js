@@ -15,7 +15,6 @@
  */
 const shell = require("shelljs");
 
-const dirname = "my-plugin";
 const repo = "git@github.com:AdobeXD/plugin-samples.git";
 const sampleDirs = {
   default: "quick-start",
@@ -26,7 +25,8 @@ const sampleDirs = {
 }
 
 function bootstrap(opts, args) {
-  const sampleDir = sampleDirs[args[0] || "default"] || sampleDirs.default;
+  const sampleRepoDirname = sampleDirs[args[0] || "default"] || sampleDirs.default;
+  const localDirname = args[1] || "my-plugin";
 
   if (!shell.which("git")) {
     shell.echo("Sorry, `xdpm bootstrap` requires git.");
@@ -35,10 +35,10 @@ function bootstrap(opts, args) {
 
   // git clone from I/O console starter proj
   shell.exec(
-    `git clone "${repo}" "${dirname}"`,
+    `git clone "${repo}" "${localDirname}"`,
     function (code, stdout, stderr) {
       if (code === 0) {
-        cleanupClone(sampleDir);
+        cleanupClone(sampleRepoDirname, localDirname);
       } else {
         shell.echo("Failed to clone starter project.");
       }
@@ -46,9 +46,9 @@ function bootstrap(opts, args) {
   );
 }
 
-function cleanupClone(sampleDir) {
-  shell.cd(`./${dirname}`);
-  shell.exec(`git filter-branch --subdirectory-filter "${sampleDir}"`);
+function cleanupClone(sampleRepoDirname, localDirname) {
+  shell.cd(`./${localDirname}`);
+  shell.exec(`git filter-branch --subdirectory-filter "${sampleRepoDirname}"`);
   shell.rm("-rf", `.git`);
 }
 

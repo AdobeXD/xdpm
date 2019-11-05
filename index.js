@@ -25,7 +25,7 @@ cli.enable("status");
 
 
 const commands = {
-  bootstrap: `Create a new plugin scaffold: ${sampleTypes}`,
+  bootstrap: `Create a new plugin scaffold: ${sampleTypes}. Optionally specify the name for your new plugin's directory.`,
   install: "Install a plugin in development mode",
   ls: "List all plugins in development mode",
   package: "Package a plugin",
