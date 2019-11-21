@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+const path = require("path");
 const shell = require("shelljs");
 
 const repo = "git@github.com:AdobeXD/plugin-samples.git";
@@ -36,11 +37,7 @@ function bootstrap(opts, args) {
   }
 
   // Clone from repo
-  shell.exec(`git clone "${repo}" "${localDirname}"`, function(
-    code,
-    stdout,
-    stderr
-  ) {
+  shell.exec(`git clone "${repo}" "${localDirname}"`, code => {
     if (code === 0) {
       cleanupClone(sampleRepoDirname, localDirname);
     } else {
@@ -49,8 +46,10 @@ function bootstrap(opts, args) {
   });
 }
 
+// Check dirname for problematic chars
 function checkName(dirname) {
   const unallowedChars = ['"', "'", ";"];
+
   const usedChars = unallowedChars.reduce((foundChars, char) => {
     if (dirname.includes(char)) foundChars.push(char);
     return foundChars;
@@ -67,12 +66,16 @@ function checkName(dirname) {
   return dirname;
 }
 
+// Remove unneeded samples and git history
 function cleanupClone(sampleRepoDirname, localDirname) {
   shell.cd(`./${localDirname}`);
-  shell.exec(
-    `git filter-branch --subdirectory-filter "${sampleRepoDirname}" >/dev/null 2>&1`
-  );
-  shell.rm("-rf", `.git`);
+
+  if (path.basename(shell.pwd().stdout) === localDirname) {
+    shell.exec(
+      `git filter-branch --subdirectory-filter "${sampleRepoDirname}" >/dev/null 2>&1`
+    );
+    shell.rm("-rf", `.git`);
+  }
 }
 
 module.exports = {
