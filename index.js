@@ -18,11 +18,11 @@
 const cli = require("cli");
 const package = require("./package.json");
 const sampleDirs = require("./commands/bootstrap").sampleDirs;
-const sampleTypes = Object.keys(sampleDirs).filter(el => el !== "default").join(", ")
+const sampleTypes = Object.keys(sampleDirs)
+  .filter(el => el !== "default")
+  .join(", ");
 
 cli.enable("status");
-
-
 
 const commands = {
   bootstrap: `Create a new plugin scaffold: ${sampleTypes}. Optionally specify the name for your new plugin's directory.`,
@@ -55,7 +55,7 @@ const options = {
 const parsedOpts = cli.parse(options, commands);
 
 if (parsedOpts.json) {
-  cli.status = function () { };
+  cli.status = function() {};
 } else {
   cli.info(`xdpm ${package.version} - XD Plugin Manager CLI`);
   cli.info(`Use of this tool means you agree to the Adobe Terms of Use at

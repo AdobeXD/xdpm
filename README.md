@@ -2,22 +2,22 @@
 
 `xdpm` is a command line tool that makes it easy to develop Adobe XD plugins. It is capable of the following tasks:
 
-* `bootstrap`: Creates a new plugin scaffold: headless, panel, react, modal. Optionally specify the name for your new plugin's directory.
-* `install`: copies one or more plugins in a develoment folder into Adobe XD's develop folder
-* `watch`: Watches a plugin folder and copies it into Adobe XD whenever the contents change
-* `validate`: Validates a plugin's manifest to ensure that it will be accepted by XD.
-* `package`: Packages a plugin folder into an `xdx` file suitable for distribution
-* `ls`: Lists plugins installed in Adobe XD in development mode.
+- `bootstrap`: Creates a new plugin scaffold: headless, panel, react, modal. Optionally specify the name for your new plugin's directory.
+- `install`: copies one or more plugins in a develoment folder into Adobe XD's develop folder
+- `watch`: Watches a plugin folder and copies it into Adobe XD whenever the contents change
+- `validate`: Validates a plugin's manifest to ensure that it will be accepted by XD.
+- `package`: Packages a plugin folder into an `xdx` file suitable for distribution
+- `ls`: Lists plugins installed in Adobe XD in development mode.
 
 ## Install
 
-```
+```shell
 npm install -g @adobe/xdpm
 ```
 
 If you've cloned the repository:
 
-```
+```shell
 npm install
 npm link
 ```
@@ -26,10 +26,10 @@ npm link
 
 any of the following:
 
-```
-$ xdpm bootstrap
-$ xdpm bootstrap panel
-$ xdpm bootstrap panel my-panel
+```shell
+xdpm bootstrap
+xdpm bootstrap panel
+xdpm bootstrap panel my-panel
 ```
 
 Plugin type options:
@@ -41,7 +41,7 @@ Plugin type options:
 
 ## Installing a plugin
 
-```
+```shell
 xdpm install                            # Install the current folder into Adobe XD
 xdpm install path/to/plugin             # Install the specified folder into Adobe XD
 xdpm install -w release                 # Install to Adobe XD CC Release (`r` is also valid; default)
@@ -56,7 +56,7 @@ If the plugin folder is not a valid XD plugin, you'll receive an error upon atte
 
 ## Watching a plugin
 
-```
+```shell
 xdpm watch                            # Watch current folder and install changes into Adobe XD
 xdpm watch path/to/plugin             # Watch the specified folder and install changes into Adobe XD
 xdpm watch -w release                 # Install to Adobe XD CC Release (`r` is also valid; default)
@@ -68,7 +68,7 @@ When developing a plugin, you can work directly in Adobe XD's `develop` folder, 
 
 ## Validating plugin manifests
 
-```
+```shell
 xdpm validate [...folders]           # Validate the manifests in the list of folders
 ```
 
@@ -76,7 +76,7 @@ You can validate that a manifest is correct using this command. Any errors found
 
 ## Packaging plugins
 
-```
+```shell
 xdpm package [...folders]            # Create Adobe XD package
 ```
 
@@ -86,7 +86,7 @@ When you're finished with a plugin, you can simply zip the folder and rename the
 
 ## Listing installed plugins
 
-```
+```shell
 xdpm ls                              # List installed plugins in Adobe XD's `develop` folder
 xdpm ls -w release                   # List installed plugins in Adobe XD's `develop` folder (default)
 xdpm ls -w prerelease                # List installed plugins in Adobe XD Prerelease `develop` folder
@@ -96,7 +96,7 @@ You can install plugins that are currently installed in Adobe XD using `ls`.
 
 ## Help
 
-```
+```shell
 Usage:
   xdpm [OPTIONS] <command> [ARGS]
 
