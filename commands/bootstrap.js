@@ -69,7 +69,9 @@ function checkName(dirname) {
 
 function cleanupClone(sampleRepoDirname, localDirname) {
   shell.cd(`./${localDirname}`);
-  shell.exec(`git filter-branch --subdirectory-filter "${sampleRepoDirname}"`);
+  shell.exec(
+    `git filter-branch --subdirectory-filter "${sampleRepoDirname}" >/dev/null 2>&1`
+  );
   shell.rm("-rf", `.git`);
 }
 
