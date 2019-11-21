@@ -16,34 +16,55 @@
 const shell = require("shelljs");
 
 const repo = "git@github.com:AdobeXD/plugin-samples.git";
+const defaultDirname = "my-plugin";
 const sampleDirs = {
   default: "quick-start",
   headless: "quick-start",
   panel: "quick-start-panel",
   react: "quick-start-react",
   modal: "ui-html"
-}
+};
 
 function bootstrap(opts, args) {
-  const sampleRepoDirname = sampleDirs[args[0] || "default"] || sampleDirs.default;
-  const localDirname = args[1] || "my-plugin";
+  const sampleRepoDirname =
+    sampleDirs[args[0] || "default"] || sampleDirs.default;
+  const localDirname = checkName(args[1]) || defaultDirname;
 
   if (!shell.which("git")) {
     shell.echo("Sorry, `xdpm bootstrap` requires git.");
     shell.exit(1);
   }
 
-  // git clone from I/O console starter proj
-  shell.exec(
-    `git clone "${repo}" "${localDirname}"`,
-    function (code, stdout, stderr) {
-      if (code === 0) {
-        cleanupClone(sampleRepoDirname, localDirname);
-      } else {
-        shell.echo("Failed to clone starter project.");
-      }
+  // Clone from repo
+  shell.exec(`git clone "${repo}" "${localDirname}"`, function(
+    code,
+    stdout,
+    stderr
+  ) {
+    if (code === 0) {
+      cleanupClone(sampleRepoDirname, localDirname);
+    } else {
+      shell.echo("Failed to clone starter project.");
     }
-  );
+  });
+}
+
+function checkName(dirname) {
+  const unallowedChars = ['"', "'", ";"];
+  const usedChars = unallowedChars.reduce((foundChars, char) => {
+    if (dirname.includes(char)) foundChars.push(char);
+    return foundChars;
+  }, []);
+
+  if (usedChars.length) {
+    shell.echo(
+      `Sorry, the following characters aren't allowed in your directory name: ${usedChars.join(
+        " "
+      )}`
+    );
+    shell.exit(1);
+  }
+  return dirname;
 }
 
 function cleanupClone(sampleRepoDirname, localDirname) {
