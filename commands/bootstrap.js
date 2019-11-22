@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const path = require("path");
 const shell = require("shelljs");
 
-const repo = "git@github.com:AdobeXD/plugin-samples.git";
+const repo = "https://github.com/AdobeXD/plugin-samples.git";
 const defaultDirname = "my-plugin";
 const sampleDirs = {
   default: "quick-start",
@@ -27,27 +26,49 @@ const sampleDirs = {
 };
 
 function bootstrap(opts, args) {
+  shell.echo("Bootstrapping plugin:");
+
   const sampleRepoDirname =
     sampleDirs[args[0] || "default"] || sampleDirs.default;
-  const localDirname = checkName(args[1]) || defaultDirname;
+  const localDirname = getLocalDirname(args);
 
   if (!shell.which("git")) {
-    shell.echo("Sorry, `xdpm bootstrap` requires git.");
+    shell.echo(
+      "Sorry, 'git' must be set in your PATH for xdpm bootstrap to work, but wasn't found. Please check your PATH."
+    );
     shell.exit(1);
   }
 
   // Clone from repo
-  shell.exec(`git clone "${repo}" "${localDirname}"`, code => {
-    if (code === 0) {
-      cleanupClone(sampleRepoDirname, localDirname);
-    } else {
-      shell.echo("Failed to clone starter project.");
+  shell.exec(
+    `git clone "${repo}" "${localDirname}"`,
+    (code, stdout, stderr) => {
+      if (code === 0) {
+        cleanupClone(sampleRepoDirname, localDirname);
+      } else {
+        shell.echo(
+          `xdpm was unable to retrieve the boilerplate code for your plugin`
+        );
+        shell.echo(`See the following for more information:`);
+        shell.echo(`> ${stdout}`);
+        shell.echo(`> ${stderr}`);
+
+        shell.exit(1);
+      }
     }
-  });
+  );
+}
+
+function getLocalDirname(args) {
+  if (args[1]) return checkName(args[1]);
+  if (args[0] && !sampleDirs[args[0]]) return checkName(args[0]);
+  return defaultDirname;
 }
 
 // Check dirname for problematic chars
 function checkName(dirname) {
+  if (!dirname) return;
+
   const unallowedChars = ['"', "'", ";"];
 
   const usedChars = unallowedChars.reduce((foundChars, char) => {
@@ -68,13 +89,19 @@ function checkName(dirname) {
 
 // Remove unneeded samples and git history
 function cleanupClone(sampleRepoDirname, localDirname) {
-  shell.cd(`./${localDirname}`);
+  const cdResult = shell.cd(`./${localDirname}`);
 
-  if (path.basename(shell.pwd().stdout) === localDirname) {
+  if (cdResult.code === 0) {
     shell.exec(
       `git filter-branch --subdirectory-filter "${sampleRepoDirname}" >/dev/null 2>&1`
     );
     shell.rm("-rf", `.git`);
+
+    shell.echo(`Plugin was sucessfully bootstrapped in ${localDirname}`);
+  } else {
+    shell.echo(`Unable to find bootstrapped plugin directory ${localDirname}`);
+
+    shell.exit(1);
   }
 }
 

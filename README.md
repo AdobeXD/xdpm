@@ -27,9 +27,10 @@ npm link
 any of the following:
 
 ```shell
-xdpm bootstrap
-xdpm bootstrap panel
-xdpm bootstrap panel my-panel
+xdpm bootstrap                        # Bootstrap a headless plugin
+xdpm bootstrap my-panel               # Bootstrap a headless plugin in dir ./my-panel
+xdpm bootstrap panel                  # Bootstrap a panel plugin
+xdpm bootstrap panel my-panel         # Bootstrap a panel plugin in dir ./my-panel
 ```
 
 Plugin type options:
