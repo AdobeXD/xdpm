@@ -93,7 +93,8 @@ function cleanupClone(sampleRepoDirname, localDirname) {
 
   if (cdResult.code === 0) {
     shell.exec(
-      `git filter-branch --subdirectory-filter "${sampleRepoDirname}" >/dev/null 2>&1`
+      `git filter-branch --subdirectory-filter "${sampleRepoDirname}"`,
+      { silent: true }
     );
     shell.rm("-rf", `.git`);
 
