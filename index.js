@@ -18,7 +18,9 @@
 const cli = require("cli");
 const package = require("./package.json");
 
-cli.enable("status");
+
+cli.enable("status", "version");
+cli.setApp(package.name, package.version);
 
 const commands = {
     "install": "Install a plugin in development mode",
