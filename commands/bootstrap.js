@@ -16,6 +16,7 @@
 const shell = require("shelljs");
 
 const repo = "https://github.com/AdobeXD/plugin-samples.git";
+const consoleLink = "https://console.adobe.io/plugins";
 const defaultDirname = "my-plugin";
 const sampleDirs = {
   default: "quick-start",
@@ -99,6 +100,9 @@ function cleanupClone(sampleRepoDirname, localDirname) {
     shell.rm("-rf", `.git`);
 
     shell.echo(`Plugin was sucessfully bootstrapped in ${localDirname}`);
+    shell.echo(
+      `Be sure to get your unique plugin ID at ${consoleLink} and include it in manifest.json`
+    );
   } else {
     shell.echo(`Unable to find bootstrapped plugin directory ${localDirname}`);
 
