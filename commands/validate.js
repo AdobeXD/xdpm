@@ -15,9 +15,12 @@
  */
 
 const cli = require("cli");
+const shell = require("shelljs");
 const path = require("path");
 const getPluginMetadata = require("../lib/getPluginMetadata");
 const validate = require("../lib/validate");
+
+const validateErrCode = 1;
 
 /**
  * validates one or more plugins
@@ -27,6 +30,19 @@ function validatePlugin(opts, args) {
         args.push("."); // assume we want to package the plugin in the cwd
     }
 
+    const results = getResults(args);  
+    const errors = reportResults(opts, results);
+
+    if (errors) {
+        shell.echo(`Error: manifest validation failed. Exiting with code ${validateErrCode}`);
+        shell.exit(validateErrCode);
+    }
+    else {        
+        shell.exit(0);
+    }
+}
+
+function getResults(args) {
     const results = args.map(pluginToValidate => {
         const sourcePath = path.resolve(pluginToValidate);
         const result = {
@@ -51,20 +67,26 @@ function validatePlugin(opts, args) {
         return result;
     });
 
+    return results;
+}
+
+function reportResults(opts, results) {
     if (opts.json) {
-        cli.output(JSON.stringify(results));
-        return results;
-    }
+        shell.echo(JSON.stringify(results));
+    }  
+
+    let errors;
 
     results.forEach(result => {
         if (result.ok) {
             cli.ok(result.ok);
         } else {
             cli.error(result.error);
+            errors = true;
         }
     });
 
-    return results;
+    return errors;
 }
 
 module.exports = validatePlugin;
