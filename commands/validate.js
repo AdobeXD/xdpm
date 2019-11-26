@@ -34,7 +34,7 @@ function validatePlugin(opts, args) {
     const errors = reportResults(opts, results);
 
     if (errors) {
-        shell.echo(`Error: manifest validation failed. Exiting with code ${validateErrCode}`);
+        cli.error(`Manifest validation failed. Exiting with code ${validateErrCode}`);
         shell.exit(validateErrCode);
     }
     else {        
@@ -70,6 +70,12 @@ function getResults(args) {
     return results;
 }
 
+/**
+ * Prints validation results for each tested plugin to command line.
+ * @param {*} opts 
+ * @param {*} results 
+ * @returns {boolean} True if there was an error for any of the tested plugin manifests.
+ */
 function reportResults(opts, results) {
     if (opts.json) {
         shell.echo(JSON.stringify(results));
