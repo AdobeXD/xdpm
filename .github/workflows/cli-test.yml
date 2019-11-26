@@ -19,3 +19,9 @@ jobs:
     - run: npm install
     - run: npm link
     - run: xdpm -v
+    - run: xdpm validate
+      continue-on-error: true
+    - run: xdpm package
+      continue-on-error: true
+    - run: xdpm install
+      continue-on-error: true
