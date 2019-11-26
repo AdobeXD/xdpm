@@ -28,3 +28,10 @@ jobs:
     - run: git clone https://github.com/AdobeXD/plugin-samples.git
     - run: xdpm validate
       working-directory: ./plugin-samples/quick-start
+    - run: xdpm package
+      working-directory: ./plugin-samples/quick-start
+    - run: echo "{}" > ./manifest.json
+      working-directory: ./plugin-samples/quick-start
+    - run: xdpm validate
+      working-directory: ./plugin-samples/quick-start
+      continue-on-error: true
