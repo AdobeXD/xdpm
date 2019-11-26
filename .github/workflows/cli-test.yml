@@ -25,3 +25,6 @@ jobs:
       continue-on-error: true
     - run: xdpm install
       continue-on-error: true
+    - run: git clone https://github.com/AdobeXD/plugin-samples.git
+    - run: cd plugin-samples/quick-start
+    - run: xdpm validate
