@@ -52,7 +52,7 @@ function package(opts, args) {
         const errors = validate(metadata, {root: sourcePath});
         if (errors.length > 0) {
             return Object.assign({}, result, {
-                "error": "Can't package a plugin that has validation errors in the maniest.json:\n" + errors.join("\n")
+                "error": "Can't package a plugin that has validation errors in the manifest.json:\n" + errors.join("\n")
             });
         }
 
