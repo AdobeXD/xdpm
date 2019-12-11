@@ -22,7 +22,9 @@ const sampleTypes = Object.keys(sampleDirs)
   .filter(el => el !== "default")
   .join(", ");
 
-cli.enable("status");
+
+cli.enable("status", "version");
+cli.setApp(package.name, package.version);
 
 const commands = {
   bootstrap: `Create a new plugin scaffold: ${sampleTypes}. Optionally specify the name for your new plugin's directory.`,
