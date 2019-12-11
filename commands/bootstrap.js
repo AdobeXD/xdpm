@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 const shell = require("shelljs");
+const sanitize = require("sanitize-filename");
 
 const repo = "https://github.com/AdobeXD/plugin-samples.git";
 const consoleLink = "https://console.adobe.io/plugins";
@@ -61,31 +62,9 @@ function bootstrap(opts, args) {
 }
 
 function getLocalDirname(args) {
-  if (args[1]) return checkName(args[1]);
-  if (args[0] && !sampleDirs[args[0]]) return checkName(args[0]);
+  if (args[1]) return sanitize(args[1]);
+  if (args[0] && !sampleDirs[args[0]]) return sanitize(args[0]);
   return defaultDirname;
-}
-
-// Check dirname for problematic chars
-function checkName(dirname) {
-  if (!dirname) return;
-
-  const unallowedChars = ['"', "'", ";"];
-
-  const usedChars = unallowedChars.reduce((foundChars, char) => {
-    if (dirname.includes(char)) foundChars.push(char);
-    return foundChars;
-  }, []);
-
-  if (usedChars.length) {
-    shell.echo(
-      `Sorry, the following characters aren't allowed in your directory name: ${usedChars.join(
-        " "
-      )}`
-    );
-    shell.exit(1);
-  }
-  return dirname;
 }
 
 // Remove unneeded samples and git history
