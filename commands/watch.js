@@ -26,7 +26,7 @@ const install = require("./install");
 /**
  * Watches for changes in one or more plugins and re-installs them automatically
  */
-function watch (opts, args) {
+function watch(opts, args) {
     const folder = localXdPath(opts);
     if (!folder) {
         console.fatal(`Could not determine Adobe XD folder.`);
@@ -39,7 +39,9 @@ function watch (opts, args) {
 
     if (opts.json) {
         // this doesn't make sense!
-        cli.output(JSON.stringify({"error": "Can't use JSON output on watch."}));
+        cli.output(
+            JSON.stringify({ error: "Can't use JSON output on watch." })
+        );
         return;
     }
 
@@ -54,14 +56,16 @@ function watch (opts, args) {
         const metadata = getPluginMetadata(sourcePath);
         if (!metadata) {
             return Object.assign({}, result, {
-                "error": "Can't watch a plugin that doesn't have a valid manifest.json"
+                error:
+                    "Can't watch a plugin that doesn't have a valid manifest.json"
             });
         }
 
         const id = metadata.id;
         if (!id) {
             return Object.assign({}, result, {
-                "error": "Can't watch a plugin without a plugin ID in the manifest"
+                error:
+                    "Can't watch a plugin without a plugin ID in the manifest"
             });
         }
 
@@ -71,13 +75,16 @@ function watch (opts, args) {
             persistent: true
         });
 
-        watcher.on("all", debounce(() => {
-            cli.info(`${metadata.name} changed; reinstalling...`);
-            install(opts, [ pluginToWatch ]); // only want to reinstall the changed plugin
-        }, 250));
+        watcher.on(
+            "all",
+            debounce(() => {
+                cli.info(`${metadata.name} changed; reinstalling...`);
+                install(opts, [pluginToWatch]); // only want to reinstall the changed plugin
+            }, 250)
+        );
 
         return Object.assign({}, result, {
-            "ok": `Watching ${metadata.name}...`
+            ok: `Watching ${metadata.name}...`
         });
     });
 
@@ -89,7 +96,7 @@ function watch (opts, args) {
         }
     });
 
-    cli.info(`Watching... press BREAK (CTRL+C) to exit.`)
+    cli.info(`Watching... press BREAK (CTRL+C) to exit.`);
 }
 
 module.exports = watch;

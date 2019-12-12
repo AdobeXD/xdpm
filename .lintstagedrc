@@ -1,0 +1,18 @@
+{
+  "commands/**/*.{js,jsx}": [
+    "eslint --fix",
+    "git add"
+  ],
+  "lib/**/*.{js,jsx}": [
+    "eslint --fix",
+    "git add"
+  ],
+  "__tests__/**/*.json": [
+    "prettier --write",
+    "git add"
+  ],
+  ".eslintrc": [
+    "prettier --write",
+    "git add"
+  ]
+}

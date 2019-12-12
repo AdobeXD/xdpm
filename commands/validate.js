@@ -36,14 +36,16 @@ function validatePlugin(opts, args) {
         const metadata = getPluginMetadata(sourcePath);
         if (!metadata) {
             return Object.assign({}, result, {
-                "error": `Plugin ${pluginToValidate} doesn't have a manifest.`
+                error: `Plugin ${pluginToValidate} doesn't have a manifest.`
             });
         }
 
-        const errors = validate(metadata, {root: sourcePath});
+        const errors = validate(metadata, { root: sourcePath });
         if (errors.length > 0) {
             return Object.assign({}, result, {
-                "error": `Plugin ${pluginToValidate} has validation errors in the manifest.json:\n` + errors.join("\n")
+                error:
+                    `Plugin ${pluginToValidate} has validation errors in the manifest.json:\n` +
+                    errors.join("\n")
             });
         }
 
