@@ -3,8 +3,40 @@ name: xdpm CI
 on: [push]
 
 jobs:
-  build:
-    runs-on: [macos-latest, windows-latest]
+  mac:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        node-version: [8.x, 10.x, 12.x]
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm install
+    - run: npm link
+    - run: xdpm -v
+    - run: xdpm validate
+      continue-on-error: true
+    - run: xdpm package
+      continue-on-error: true
+    - run: xdpm install
+      continue-on-error: true
+    - run: git clone https://github.com/AdobeXD/plugin-samples.git
+    - run: xdpm validate
+      working-directory: ./plugin-samples/quick-start
+    - run: xdpm package
+      working-directory: ./plugin-samples/quick-start
+    - run: echo "{}" > ./manifest.json
+      working-directory: ./plugin-samples/quick-start
+    - run: xdpm validate
+      working-directory: ./plugin-samples/quick-start
+      continue-on-error: true
+
+  windows:
+    runs-on: windows-latest
 
     strategy:
       matrix:
