@@ -17,6 +17,12 @@
 
 const cli = require("cli");
 const package = require("./package.json");
+
+const terms = {
+  use: "https://www.adobe.com/legal/terms.html",
+  dev: "http://www.adobe.com/go/developer-terms"
+};
+
 const sampleDirs = require("./commands/bootstrap").sampleDirs;
 const sampleTypes = Object.keys(sampleDirs)
   .filter(el => el !== "default")
@@ -60,9 +66,9 @@ if (parsedOpts.json) {
   cli.status = function() {};
 } else {
   cli.info(`xdpm ${package.version} - XD Plugin Manager CLI`);
-  cli.info(`Use of this tool means you agree to the Adobe Terms of Use at
-https://www.adobe.com/legal/terms.html and the Developer Additional
-Terms at https://wwwimages2.adobe.com/content/dam/acom/en/legal/servicetou/Adobe-Developer-Additional-Terms_en_US_20180605_2200.pdf.`);
+  cli.info(`Use of this tool means you agree to:
+- the Adobe Terms of Use at ${terms.use}
+- the Developer Additional Terms at ${terms.dev}`);
 }
 
 const { command, args } = cli;
