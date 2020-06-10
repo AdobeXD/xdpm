@@ -120,7 +120,7 @@ Commands:
   install                Install a plugin in development mode
   ls                     List all plugins in development mode
   package                Package a plugin
-  validate               Validate a plugin\'s manifest
+  validate               Validate a plugin's manifest
   watch                  Watch a plugin directory. If no directory is
                          specified, `.` is assumed
 ```
