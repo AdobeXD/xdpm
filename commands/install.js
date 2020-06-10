@@ -83,14 +83,11 @@ function install(opts, args) {
             ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
             includeEmpty: false,
         }
-        if (opts.ignoreFiles) {
-          const ignoreFilesOpt = opts.ignoreFiles
-            .split(/,|\s/)
-            .map((f) => f.trim())
-            .filter(Boolean);
-
-          walkConfig.ignoreFiles =
-            (ignoreFilesOpt && ignoreFilesOpt.length) || walkConfig.ignoreFiles;
+        if (opts.ignoreFiles !== null) {
+            walkConfig.ignoreFiles = opts.ignoreFiles
+                .split(/,|\s/)
+                .map((f) => f.trim())
+                .filter(Boolean);
         }
 
         const files = ignoreWalk
