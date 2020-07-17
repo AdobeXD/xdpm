@@ -43,12 +43,13 @@ Plugin type options:
 ## Installing a plugin
 
 ```shell
-xdpm install                            # Install the current folder into Adobe XD
-xdpm install path/to/plugin             # Install the specified folder into Adobe XD
-xdpm install -w release                 # Install to Adobe XD CC Release (`r` is also valid; default)
-xdpm install -w prerelease              # Install to Adobe XD CC Prerelease (`p` is also valid)
-xdpm install -o                         # Overwrite plugin if it exists
-xdpm install -c                         # Install cleanly (remove existing)
+xdpm install                                                    # Install the current folder into Adobe XD
+xdpm install path/to/plugin                                     # Install the specified folder into Adobe XD
+xdpm install -w release                                         # Install to Adobe XD CC Release (`r` is also valid; default)
+xdpm install -w prerelease                                      # Install to Adobe XD CC Prerelease (`p` is also valid)
+xdpm install -o                                                 # Overwrite plugin if it exists
+xdpm install -c                                                 # Install cleanly (remove existing)
+xdpm install --ignore-files ".xdignore, .npmignore"             # Override default list of .*ignore files ".gitignore, .xdignore, .npmignore"
 ```
 
 You can install a plugin folder into Adobe XD using `xdpm install [...folders]`. If you don't specify a folder `xdpm install` assumes your current directory is a plugin and will install it into Adobe XD.
@@ -58,11 +59,12 @@ If the plugin folder is not a valid XD plugin, you'll receive an error upon atte
 ## Watching a plugin
 
 ```shell
-xdpm watch                            # Watch current folder and install changes into Adobe XD
-xdpm watch path/to/plugin             # Watch the specified folder and install changes into Adobe XD
-xdpm watch -w release                 # Install to Adobe XD CC Release (`r` is also valid; default)
-xdpm watch -w prerelease              # Install to Adobe XD CC Prerelease (`p` is also valid)
-xdpm watch -c                         # Perform clean installs when watching
+xdpm watch                                                      # Watch current folder and install changes into Adobe XD
+xdpm watch path/to/plugin                                       # Watch the specified folder and install changes into Adobe XD
+xdpm watch -w release                                           # Install to Adobe XD CC Release (`r` is also valid; default)
+xdpm watch -w prerelease                                        # Install to Adobe XD CC Prerelease (`p` is also valid)
+xdpm watch -c                                                   # Perform clean installs when watching
+xdpm watch --ignore-files ".xdignore, .npmignore"               # Override default list of .*ignore files ".gitignore, .xdignore, .npmignore"
 ```
 
 When developing a plugin, you can work directly in Adobe XD's `develop` folder, but this may not fit your particular workflow. In this case, you can invoke `xdpm watch` on a folder (or the current directory) and whenever changes are made, `xdpm install` will be automatically invoked to reinstall the plugins. This can simplify your development process significantly, especially if you don't use a build process.
@@ -111,6 +113,7 @@ Options:
                          [r|p|d|release|pre|prerelease|dev|development]  (Default is r)
   -k, --no-color         Omit color from output
       --debug            Show debug information
+      --ignore-files     Provide a custom list of .*ignore files, to override default ".gitignore, .xdignore, .npmignore"
   -h, --help             Display help and usage details
 
 Commands:

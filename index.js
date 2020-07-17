@@ -51,6 +51,9 @@ const options = {
     "Which Adobe XD instance to target",
     ["r", "p", "d", "release", "pre", "prerelease", "dev", "development"],
     "r"
+  ],
+  ignoreFiles: [
+    "ignore-files", "List of .*ignore files to proceed. Default is \".gitignore, .xdignore, .npmignore\"", 'string'
   ]
 };
 
