@@ -73,16 +73,26 @@ function install(opts, args) {
         } else {
             shell.mkdir(targetFolder);
         }
-
+        
         // the comment below doesn't respect .xdignore (or other ignore files)
         // but this is the gist of what we're trying to accomplish
         // shell.cp("-R", path.join(sourcePath, "*"), targetFolder)
 
-        const files = ignoreWalk.sync({
+        const walkConfig = {
             path: sourcePath,
             ignoreFiles: [".gitignore", ".xdignore", ".npmignore"],
             includeEmpty: false,
-        }).filter(filterAlwaysIgnoredFile);
+        }
+        if (opts.ignoreFiles !== null) {
+            walkConfig.ignoreFiles = opts.ignoreFiles
+                .split(/,|\s/)
+                .map((f) => f.trim())
+                .filter(Boolean);
+        }
+
+        const files = ignoreWalk
+          .sync(walkConfig)
+          .filter(filterAlwaysIgnoredFile);
 
         files.forEach(file => {
             const srcFile = path.join(sourcePath, file);

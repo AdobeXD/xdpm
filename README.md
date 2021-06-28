@@ -2,34 +2,54 @@
 
 `xdpm` is a command line tool that makes it easy to develop Adobe XD plugins. It is capable of the following tasks:
 
-* `install`: copies one or more plugins in a develoment folder into Adobe XD's develop folder
-* `watch`: Watches a plugin folder and copies it into Adobe XD whenever the contents change
-* `validate`: Validates a plugin's manifest to ensure that it will be accepted by XD.
-* `package`: Packages a plugin folder into an `xdx` file suitable for distribution
-* `ls`: Lists plugins installed in Adobe XD in development mode.
+- `bootstrap`: Creates a new plugin scaffold: headless, panel, react, modal. Optionally specify the name for your new plugin's directory.
+- `install`: copies one or more plugins in a develoment folder into Adobe XD's develop folder
+- `watch`: Watches a plugin folder and copies it into Adobe XD whenever the contents change
+- `validate`: Validates a plugin's manifest to ensure that it will be accepted by XD.
+- `package`: Packages a plugin folder into an `xdx` file suitable for distribution
+- `ls`: Lists plugins installed in Adobe XD in development mode.
 
 ## Install
 
-```
+```shell
 npm install -g @adobe/xdpm
 ```
 
 If you've cloned the repository:
 
-```
+```shell
 npm install
 npm link
 ```
 
+## Bootstrapping a plugin
+
+any of the following:
+
+```shell
+xdpm bootstrap                        # Bootstrap a headless plugin
+xdpm bootstrap my-panel               # Bootstrap a headless plugin in dir ./my-panel
+xdpm bootstrap panel                  # Bootstrap a panel plugin
+xdpm bootstrap panel my-panel         # Bootstrap a panel plugin in dir ./my-panel
+```
+
+Plugin type options:
+
+- headless (default)
+- panel
+- modal
+- react
+
 ## Installing a plugin
 
-```
-xdpm install                            # Install the current folder into Adobe XD
-xdpm install path/to/plugin             # Install the specified folder into Adobe XD
-xdpm install -w release                 # Install to Adobe XD CC Release (`r` is also valid; default)
-xdpm install -w prerelease              # Install to Adobe XD CC Prerelease (`p` is also valid)
-xdpm install -o                         # Overwrite plugin if it exists
-xdpm install -c                         # Install cleanly (remove existing)
+```shell
+xdpm install                                                    # Install the current folder into Adobe XD
+xdpm install path/to/plugin                                     # Install the specified folder into Adobe XD
+xdpm install -w release                                         # Install to Adobe XD CC Release (`r` is also valid; default)
+xdpm install -w prerelease                                      # Install to Adobe XD CC Prerelease (`p` is also valid)
+xdpm install -o                                                 # Overwrite plugin if it exists
+xdpm install -c                                                 # Install cleanly (remove existing)
+xdpm install --ignore-files ".xdignore, .npmignore"             # Override default list of .*ignore files ".gitignore, .xdignore, .npmignore"
 ```
 
 You can install a plugin folder into Adobe XD using `xdpm install [...folders]`. If you don't specify a folder `xdpm install` assumes your current directory is a plugin and will install it into Adobe XD.
@@ -38,19 +58,20 @@ If the plugin folder is not a valid XD plugin, you'll receive an error upon atte
 
 ## Watching a plugin
 
-```
-xdpm watch                            # Watch current folder and install changes into Adobe XD
-xdpm watch path/to/plugin             # Watch the specified folder and install changes into Adobe XD
-xdpm watch -w release                 # Install to Adobe XD CC Release (`r` is also valid; default)
-xdpm watch -w prerelease              # Install to Adobe XD CC Prerelease (`p` is also valid)
-xdpm watch -c                         # Perform clean installs when watching
+```shell
+xdpm watch                                                      # Watch current folder and install changes into Adobe XD
+xdpm watch path/to/plugin                                       # Watch the specified folder and install changes into Adobe XD
+xdpm watch -w release                                           # Install to Adobe XD CC Release (`r` is also valid; default)
+xdpm watch -w prerelease                                        # Install to Adobe XD CC Prerelease (`p` is also valid)
+xdpm watch -c                                                   # Perform clean installs when watching
+xdpm watch --ignore-files ".xdignore, .npmignore"               # Override default list of .*ignore files ".gitignore, .xdignore, .npmignore"
 ```
 
 When developing a plugin, you can work directly in Adobe XD's `develop` folder, but this may not fit your particular workflow. In this case, you can invoke `xdpm watch` on a folder (or the current directory) and whenever changes are made, `xdpm install` will be automatically invoked to reinstall the plugins. This can simplify your development process significantly, especially if you don't use a build process.
 
 ## Validating plugin manifests
 
-```
+```shell
 xdpm validate [...folders]           # Validate the manifests in the list of folders
 ```
 
@@ -58,7 +79,7 @@ You can validate that a manifest is correct using this command. Any errors found
 
 ## Packaging plugins
 
-```
+```shell
 xdpm package [...folders]            # Create Adobe XD package
 ```
 
@@ -68,7 +89,7 @@ When you're finished with a plugin, you can simply zip the folder and rename the
 
 ## Listing installed plugins
 
-```
+```shell
 xdpm ls                              # List installed plugins in Adobe XD's `develop` folder
 xdpm ls -w release                   # List installed plugins in Adobe XD's `develop` folder (default)
 xdpm ls -w prerelease                # List installed plugins in Adobe XD Prerelease `develop` folder
@@ -78,7 +99,7 @@ You can install plugins that are currently installed in Adobe XD using `ls`.
 
 ## Help
 
-```
+```shell
 Usage:
   xdpm [OPTIONS] <command> [ARGS]
 
@@ -92,6 +113,7 @@ Options:
                          [r|p|d|release|pre|prerelease|dev|development]  (Default is r)
   -k, --no-color         Omit color from output
       --debug            Show debug information
+      --ignore-files     Provide a custom list of .*ignore files, to override default ".gitignore, .xdignore, .npmignore"
   -h, --help             Display help and usage details
 
 Commands:
